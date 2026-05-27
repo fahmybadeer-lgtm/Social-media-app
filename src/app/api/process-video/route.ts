@@ -14,7 +14,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { processVideo, makeTempPath, getVideoMetadata } from '@/lib/ffmpeg/processor';
+import { processVideo, makeTempPath } from '@/lib/ffmpeg/processor';
+import type {
+  VideoProcessingParams as ProcessorParams,
+} from '@/lib/ffmpeg/processor';
 import type { VideoProcessingParams, MediaFile, VideoJob } from '@/types';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -164,7 +167,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       await downloadToTemp(media.file_url, tempInputPath);
 
       // 2. Run FFmpeg processing
-      const result = await processVideo(tempInputPath, tempOutputPath, params);
+      // Cast outputFormat to the stricter processor type — invalid values
+      // will simply be ignored by the processor (it defaults to 'mp4').
+      const processorParams: ProcessorParams = {
+        ...params,
+        outputFormat:
+          params.outputFormat === 'mp4' || params.outputFormat === 'webm'
+            ? params.outputFormat
+            : 'mp4',
+      };
+      const result = await processVideo(tempInputPath, tempOutputPath, processorParams);
 
       // 3. Read the processed file and upload to 'processed-media' bucket
       const processedBuffer = fs.readFileSync(result.outputPath);
