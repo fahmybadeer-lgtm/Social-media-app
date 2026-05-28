@@ -102,6 +102,21 @@ export default function ComposerPage() {
   const [form, setForm] = useState<ComposerFormState>(INITIAL_STATE)
   const [isSaving, setIsSaving] = useState(false)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [connectedPlatforms, setConnectedPlatforms] = useState<Platform[]>([])
+
+  // Fetch connected platforms
+  useEffect(() => {
+    fetch('/api/social/connections')
+      .then((res) => res.ok ? res.json() : [])
+      .then((data: { platform: Platform; is_active: boolean }[]) => {
+        if (Array.isArray(data)) {
+          setConnectedPlatforms(
+            data.filter((c) => c.is_active).map((c) => c.platform)
+          )
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   // Auto-dismiss toast after 5 seconds
   useEffect(() => {
@@ -333,6 +348,7 @@ export default function ComposerPage() {
                 <PlatformSelector
                   selectedPlatforms={form.platforms}
                   onChange={(platforms) => patch('platforms', platforms)}
+                  connectedPlatforms={connectedPlatforms}
                 />
               </div>
 

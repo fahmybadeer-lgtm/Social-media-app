@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/media-library', '/composer', '/editor']
+const PROTECTED_ROUTES = ['/media-library', '/composer', '/editor', '/settings']
 
 // Returns true when the pathname is one that requires a logged-in user
 function isProtectedRoute(pathname: string): boolean {

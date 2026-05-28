@@ -10,6 +10,7 @@ import type { Platform } from '@/types'
 interface PlatformSelectorProps {
   selectedPlatforms: Platform[]
   onChange: (platforms: Platform[]) => void
+  connectedPlatforms?: Platform[]
 }
 
 // ---------------------------------------------------------------------------
@@ -150,6 +151,7 @@ const PLATFORMS: PlatformMeta[] = [
 export default function PlatformSelector({
   selectedPlatforms,
   onChange,
+  connectedPlatforms = [],
 }: PlatformSelectorProps) {
   function toggle(platform: Platform) {
     if (selectedPlatforms.includes(platform)) {
@@ -168,6 +170,8 @@ export default function PlatformSelector({
       <div className="grid grid-cols-2 gap-3">
         {PLATFORMS.map((platform) => {
           const isSelected = selectedPlatforms.includes(platform.id)
+
+          const isConnected = connectedPlatforms.includes(platform.id)
 
           return (
             <button
@@ -215,17 +219,18 @@ export default function PlatformSelector({
               )}
 
               {/* Connection status badge (bottom-right) */}
-              <span
-                className={[
-                  'absolute bottom-2.5 right-2.5 rounded-full px-1.5 py-0.5',
-                  'text-[10px] font-medium leading-none',
-                  isSelected ? platform.badgeBg : 'bg-gray-700/60',
-                  isSelected ? platform.badgeText : 'text-gray-500',
-                  isSelected ? 'hidden' : '',
-                ].join(' ')}
-              >
-                Connected
-              </span>
+              {isConnected && (
+                <span
+                  className={[
+                    'absolute bottom-2.5 right-2.5 rounded-full px-1.5 py-0.5',
+                    'text-[10px] font-medium leading-none',
+                    isSelected ? platform.badgeBg : 'bg-gray-700/60',
+                    isSelected ? platform.badgeText : 'text-gray-500',
+                  ].join(' ')}
+                >
+                  Connected
+                </span>
+              )}
             </button>
           )
         })}
