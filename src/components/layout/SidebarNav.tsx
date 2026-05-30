@@ -52,10 +52,10 @@ export default function SidebarNav() {
     <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col h-screen sticky top-0 bg-gray-900 border-r border-gray-800">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-gray-800">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-900/50">
-          <Zap className="w-4.5 h-4.5 text-white fill-white" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C9A84C]">
+          <Zap className="w-4.5 h-4.5 text-black fill-black" />
         </div>
-        <span className="text-lg font-bold text-indigo-400 tracking-tight">
+        <span className="text-lg font-bold text-[#C9A84C] tracking-tight">
           SocialStudio
         </span>
       </div>
@@ -71,9 +71,9 @@ export default function SidebarNav() {
                   href={item.href}
                   className={[
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A84C] focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900',
                     active
-                      ? 'bg-indigo-600/20 text-indigo-300'
+                      ? 'bg-[#C9A84C]/10 text-[#C9A84C]'
                       : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200',
                   ].join(' ')}
                   aria-current={active ? 'page' : undefined}
@@ -81,14 +81,14 @@ export default function SidebarNav() {
                   <span
                     className={[
                       'flex-shrink-0',
-                      active ? 'text-indigo-400' : 'text-gray-500',
+                      active ? 'text-[#C9A84C]' : 'text-gray-500',
                     ].join(' ')}
                   >
                     {item.icon}
                   </span>
                   {item.label}
                   {active && (
-                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-400" />
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
                   )}
                 </Link>
               </li>
@@ -101,7 +101,7 @@ export default function SidebarNav() {
       <div className="border-t border-gray-800 px-4 py-4">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-700 text-xs font-semibold text-white uppercase">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#C9A84C]/20 text-xs font-semibold text-[#C9A84C] uppercase">
             {user?.email ? user.email[0] : '?'}
           </div>
           {/* Email */}

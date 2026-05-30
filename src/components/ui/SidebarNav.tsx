@@ -83,7 +83,7 @@ function NavLink({ item }: { item: NavItem }) {
         'flex items-center gap-3 px-3 h-9 rounded-lg text-sm font-medium',
         'transition-colors duration-150',
         isActive
-          ? 'bg-indigo-600/20 text-indigo-400'
+          ? 'bg-[#C9A84C]/10 text-[#C9A84C]'
           : 'text-gray-400 hover:text-white hover:bg-gray-800'
       )}
       aria-current={isActive ? 'page' : undefined}
@@ -91,14 +91,14 @@ function NavLink({ item }: { item: NavItem }) {
       <span
         className={cn(
           'shrink-0 w-4 h-4',
-          isActive ? 'text-indigo-400' : 'text-gray-500'
+          isActive ? 'text-[#C9A84C]' : 'text-gray-500'
         )}
       >
         {item.icon}
       </span>
       <span className="truncate">{item.label}</span>
       {isActive && (
-        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#C9A84C] shrink-0" />
       )}
     </Link>
   );
@@ -118,10 +118,10 @@ export function SidebarNav() {
       {/* ── Logo ─────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2.5 px-4 h-16 border-b border-gray-800 shrink-0">
         <div
-          className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0"
+          className="w-8 h-8 rounded-lg bg-[#C9A84C] flex items-center justify-center shrink-0"
           aria-hidden="true"
         >
-          <Sparkles className="w-4 h-4 text-white" />
+          <Sparkles className="w-4 h-4 text-black" />
         </div>
         <span className="text-base font-semibold text-white tracking-tight">
           SocialFlow
