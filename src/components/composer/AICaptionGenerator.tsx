@@ -83,11 +83,11 @@ export default function AICaptionGenerator({
   }
 
   return (
-    <div className="rounded-xl border border-gray-700 bg-gray-800/50 p-4 space-y-4">
+    <div className="rounded-xl border border-[#1A1A1A] bg-[#0D0D0D] p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600/20">
-          <Sparkles className="w-4 h-4 text-indigo-400" />
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[rgba(201,168,76,0.15)]">
+          <Sparkles className="w-4 h-4 text-[#C9A84C]" />
         </div>
         <div>
           <h3 className="text-sm font-semibold text-white">AI Caption Generator</h3>
@@ -97,7 +97,7 @@ export default function AICaptionGenerator({
 
       {/* Raw concept input */}
       <div className="space-y-1.5">
-        <label htmlFor="raw-concept" className="text-xs font-medium text-gray-400">
+        <label htmlFor="raw-concept" className="text-xs font-medium text-[#A0A0A0]">
           Your idea or concept
         </label>
         <textarea
@@ -106,7 +106,7 @@ export default function AICaptionGenerator({
           onChange={(e) => setRawConcept(e.target.value)}
           placeholder="Describe your business, product, or idea in a few words…"
           rows={3}
-          className="w-full resize-none rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none transition-colors"
+          className="w-full resize-none rounded-lg border border-[#1A1A1A] bg-[#0A0A0A] px-3 py-2.5 text-sm text-white placeholder-[#A0A0A0] focus:border-[#C9A84C] focus:outline-none transition-colors"
         />
       </div>
 
@@ -124,10 +124,10 @@ export default function AICaptionGenerator({
         disabled={!rawConcept.trim() || platforms.length === 0 || state === 'loading'}
         className={[
           'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A84C] focus-visible:ring-offset-2 focus-visible:ring-offset-black',
           !rawConcept.trim() || platforms.length === 0 || state === 'loading'
-            ? 'cursor-not-allowed bg-gray-700 text-gray-400'
-            : 'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700',
+            ? 'cursor-not-allowed bg-[#1A1A1A] text-[#A0A0A0]'
+            : 'bg-[#C9A84C] text-black hover:bg-[#E8C96A] active:bg-[#A07830]',
         ].join(' ')}
       >
         {state === 'loading' ? (
@@ -164,7 +164,7 @@ export default function AICaptionGenerator({
       {/* Generated caption preview */}
       {state === 'success' && generatedCaption && (
         <div className="space-y-2.5">
-          <div className="rounded-lg border border-gray-700 bg-gray-900 p-3 space-y-2">
+          <div className="rounded-lg border border-[#1A1A1A] bg-[#0A0A0A] p-3 space-y-2">
             {/* Caption text */}
             <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
               {generatedCaption}
@@ -183,7 +183,7 @@ export default function AICaptionGenerator({
                   {captionLength.toLocaleString()} / {charLimit.toLocaleString()}
                 </span>
               </div>
-              <div className="h-1 w-full rounded-full bg-gray-700 overflow-hidden">
+              <div className="h-1 w-full rounded-full bg-[#1A1A1A] overflow-hidden">
                 <div
                   className={[
                     'h-full rounded-full transition-all duration-300',
@@ -191,7 +191,7 @@ export default function AICaptionGenerator({
                       ? 'bg-red-500'
                       : captionLength > charLimit * 0.9
                       ? 'bg-amber-500'
-                      : 'bg-indigo-500',
+                      : 'bg-[#C9A84C]',
                   ].join(' ')}
                   style={{ width: `${Math.min(100, (captionLength / charLimit) * 100)}%` }}
                 />
@@ -221,7 +221,7 @@ export default function AICaptionGenerator({
                 'flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all',
                 accepted
                   ? 'bg-green-700/40 text-green-300 cursor-default'
-                  : 'bg-indigo-600 text-white hover:bg-indigo-500',
+                  : 'bg-[#C9A84C] text-black hover:bg-[#E8C96A]',
               ].join(' ')}
             >
               {accepted ? (
@@ -239,7 +239,7 @@ export default function AICaptionGenerator({
             <button
               type="button"
               onClick={generate}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-400 hover:border-gray-600 hover:text-gray-200 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-[#1A1A1A] px-3 py-2 text-sm text-[#A0A0A0] hover:border-[#C9A84C]/40 hover:text-[#E5E5E5] transition-colors"
               title="Regenerate"
             >
               <RefreshCw className="w-4 h-4" />

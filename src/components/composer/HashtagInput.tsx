@@ -68,13 +68,13 @@ export default function HashtagInput({ hashtags, onChange }: HashtagInputProps) 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-300">
+        <label className="block text-sm font-medium text-[#E5E5E5]">
           Hashtags
         </label>
         <span
           className={[
             'text-xs tabular-nums',
-            remaining <= 5 ? 'text-amber-400' : 'text-gray-500',
+            remaining <= 5 ? 'text-amber-400' : 'text-[#A0A0A0]',
           ].join(' ')}
         >
           {hashtags.length}/{MAX_HASHTAGS}
@@ -85,20 +85,20 @@ export default function HashtagInput({ hashtags, onChange }: HashtagInputProps) 
       <div
         onClick={() => inputRef.current?.focus()}
         className={[
-          'min-h-[44px] flex flex-wrap gap-1.5 rounded-lg border bg-gray-800 px-3 py-2 cursor-text',
+          'min-h-[44px] flex flex-wrap gap-1.5 rounded-lg border bg-[#0D0D0D] px-3 py-2 cursor-text',
           'transition-colors duration-150',
           error
             ? 'border-red-500 focus-within:border-red-500'
-            : 'border-gray-700 focus-within:border-indigo-500',
+            : 'border-[#1A1A1A] focus-within:border-[#C9A84C]',
         ].join(' ')}
       >
         {/* Existing tags */}
         {hashtags.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 rounded-full bg-indigo-600/20 border border-indigo-500/40 px-2.5 py-0.5 text-xs font-medium text-indigo-300"
+            className="inline-flex items-center gap-1 rounded-full bg-[rgba(201,168,76,0.15)] border border-[#C9A84C]/40 px-2.5 py-0.5 text-xs font-medium text-[#C9A84C]"
           >
-            <Hash className="w-2.5 h-2.5 text-indigo-400" />
+            <Hash className="w-2.5 h-2.5 text-[#C9A84C]" />
             {tag}
             <button
               type="button"
@@ -106,7 +106,7 @@ export default function HashtagInput({ hashtags, onChange }: HashtagInputProps) 
                 e.stopPropagation()
                 removeTag(tag)
               }}
-              className="ml-0.5 rounded-full hover:text-white hover:bg-indigo-500/40 transition-colors"
+              className="ml-0.5 rounded-full hover:text-black hover:bg-[#C9A84C] transition-colors"
               aria-label={`Remove #${tag}`}
             >
               <X className="w-3 h-3" />
@@ -135,7 +135,7 @@ export default function HashtagInput({ hashtags, onChange }: HashtagInputProps) 
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
             placeholder={hashtags.length === 0 ? 'Add hashtag and press Enter…' : ''}
-            className="flex-1 min-w-[120px] bg-transparent text-sm text-white placeholder-gray-500 outline-none"
+            className="flex-1 min-w-[120px] bg-transparent text-sm text-white placeholder-[#A0A0A0] outline-none"
           />
         )}
       </div>
@@ -147,9 +147,9 @@ export default function HashtagInput({ hashtags, onChange }: HashtagInputProps) 
 
       {/* Helper text */}
       {!error && (
-        <p className="text-xs text-gray-500">
-          Press <kbd className="rounded bg-gray-700 px-1 py-0.5 text-[10px] text-gray-300">Enter</kbd> or{' '}
-          <kbd className="rounded bg-gray-700 px-1 py-0.5 text-[10px] text-gray-300">,</kbd> to add.
+        <p className="text-xs text-[#A0A0A0]">
+          Press <kbd className="rounded bg-[#1A1A1A] px-1 py-0.5 text-[10px] text-[#E5E5E5]">Enter</kbd> or{' '}
+          <kbd className="rounded bg-[#1A1A1A] px-1 py-0.5 text-[10px] text-[#E5E5E5]">,</kbd> to add.
           Tags are auto-formatted to lowercase.
         </p>
       )}

@@ -29,26 +29,26 @@ export default async function MediaLibraryPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-gray-950">
+    <div className="flex min-h-screen bg-black">
       {/* Sidebar navigation */}
       <SidebarNav />
 
       {/* Main content area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Page header */}
-        <header className="flex items-center gap-4 px-6 h-16 border-b border-gray-800 bg-gray-950 shrink-0">
+        <header className="flex items-center gap-4 px-6 h-16 border-b border-[#1A1A1A] bg-[#0A0A0A] shrink-0">
           <div>
             <h1 className="text-lg font-semibold text-white leading-tight">
               Media Library
             </h1>
-            <p className="text-xs text-gray-500 leading-tight mt-0.5">
+            <p className="text-xs text-[#A0A0A0] leading-tight mt-0.5">
               Upload and manage your content
             </p>
           </div>
         </header>
 
         {/* Grid content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6 bg-[#0A0A0A]">
           <MediaLibraryGrid userId={user.id} />
         </div>
       </main>

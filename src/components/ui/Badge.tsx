@@ -40,7 +40,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   instagram:
     'bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-orange-400/10 border border-pink-500/30 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400',
   tiktok:
-    'bg-gray-900 text-white border border-gray-600',
+    'bg-[#111111] text-white border border-[#1A1A1A]',
   linkedin:
     'bg-blue-700/15 text-blue-300 border border-blue-700/30',
   // ── Status ────────────────────────────────────────────────────────────────
@@ -51,7 +51,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   error:
     'bg-red-500/15 text-red-400 border border-red-500/30',
   default:
-    'bg-gray-700/50 text-gray-400 border border-gray-700',
+    'bg-[rgba(201,168,76,0.15)] text-[#C9A84C] border border-[#C9A84C]/30',
 };
 
 const sizeClasses = {

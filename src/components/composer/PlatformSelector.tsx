@@ -163,7 +163,7 @@ export default function PlatformSelector({
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-300">
+      <label className="block text-sm font-medium text-[#E5E5E5]">
         Target Platforms
       </label>
 
@@ -182,10 +182,10 @@ export default function PlatformSelector({
               className={[
                 'relative flex items-center gap-3 rounded-xl border p-3.5',
                 'text-left transition-all duration-150 focus-visible:outline-none',
-                'focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950',
+                'focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
                 isSelected
-                  ? `${platform.borderColor} bg-gray-800/80 ${platform.ringColor} ring-1`
-                  : 'border-gray-700 bg-gray-800/40 hover:border-gray-600 hover:bg-gray-800/70',
+                  ? `${platform.borderColor} bg-[#111111] ${platform.ringColor} ring-1`
+                  : 'border-[#1A1A1A] bg-[#0D0D0D] hover:border-[#C9A84C]/30 hover:bg-[#111111]',
               ].join(' ')}
             >
               {/* Platform icon */}
@@ -196,7 +196,7 @@ export default function PlatformSelector({
                 <p className={`text-sm font-semibold ${platform.nameColor}`}>
                   {platform.name}
                 </p>
-                <p className="mt-0.5 truncate text-xs text-gray-500">
+                <p className="mt-0.5 truncate text-xs text-[#A0A0A0]">
                   {platform.tagline}
                 </p>
               </div>
@@ -224,8 +224,8 @@ export default function PlatformSelector({
                   className={[
                     'absolute bottom-2.5 right-2.5 rounded-full px-1.5 py-0.5',
                     'text-[10px] font-medium leading-none',
-                    isSelected ? platform.badgeBg : 'bg-gray-700/60',
-                    isSelected ? platform.badgeText : 'text-gray-500',
+                    isSelected ? platform.badgeBg : 'bg-[#1A1A1A]',
+                    isSelected ? platform.badgeText : 'text-[#A0A0A0]',
                   ].join(' ')}
                 >
                   Connected
@@ -243,7 +243,7 @@ export default function PlatformSelector({
       )}
 
       {selectedPlatforms.length > 0 && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-[#A0A0A0]">
           {selectedPlatforms.length} platform
           {selectedPlatforms.length !== 1 ? 's' : ''} selected
         </p>

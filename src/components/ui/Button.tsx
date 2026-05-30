@@ -28,13 +28,13 @@ export interface ButtonProps
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:ring-indigo-500 disabled:bg-indigo-800 disabled:text-indigo-300',
+    'bg-[#C9A84C] text-black hover:bg-[#E8C96A] focus-visible:ring-[#C9A84C] disabled:bg-[#C9A84C]/40 disabled:text-black/50',
   secondary:
-    'bg-gray-800 text-white hover:bg-gray-700 focus-visible:ring-gray-600 border border-gray-700 disabled:bg-gray-800 disabled:text-gray-500',
+    'bg-transparent text-[#C9A84C] hover:bg-[rgba(201,168,76,0.15)] focus-visible:ring-[#C9A84C] border border-[#C9A84C] disabled:border-[#C9A84C]/30 disabled:text-[#C9A84C]/40',
   danger:
     'bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-500 disabled:bg-red-900 disabled:text-red-400',
   ghost:
-    'bg-transparent text-gray-300 hover:bg-gray-800 hover:text-white focus-visible:ring-gray-600 disabled:text-gray-600',
+    'bg-transparent text-[#A0A0A0] hover:bg-[#111111] hover:text-white focus-visible:ring-[#C9A84C] disabled:text-[#A0A0A0]/40',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -81,7 +81,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           // Base styles
           'inline-flex items-center justify-center font-medium',
           'transition-colors duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
           'select-none',
           // Disabled
           'disabled:cursor-not-allowed disabled:pointer-events-none',

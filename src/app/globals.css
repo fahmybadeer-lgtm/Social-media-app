@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #030712;
-  --foreground: #f9fafb;
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
 @theme inline {
@@ -30,16 +30,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #111827;
+  background: #0A0A0A;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: #C9A84C;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: #E8C96A;
 }
 
 /* Input/textarea dark styling */

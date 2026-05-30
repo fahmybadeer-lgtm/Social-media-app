@@ -41,9 +41,9 @@ interface MetaRowProps {
 
 function MetaRow({ icon, label, value }: MetaRowProps) {
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-gray-800 last:border-0">
-      <span className="shrink-0 w-4 h-4 text-gray-500">{icon}</span>
-      <span className="text-xs text-gray-500 w-24 shrink-0">{label}</span>
+    <div className="flex items-center gap-3 py-2.5 border-b border-[#1A1A1A] last:border-0">
+      <span className="shrink-0 w-4 h-4 text-[#A0A0A0]">{icon}</span>
+      <span className="text-xs text-[#A0A0A0] w-24 shrink-0">{label}</span>
       <span className="text-sm text-white break-all">{value}</span>
     </div>
   );
@@ -109,7 +109,7 @@ export function MediaPreviewModal({
           <div
             className="relative flex flex-col lg:flex-row w-full max-w-5xl
                        max-h-[90vh] overflow-hidden
-                       bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl"
+                       bg-[#111111] border border-[#1A1A1A] rounded-2xl shadow-2xl"
           >
             {/* ── Close button ──────────────────────────────────────────── */}
             <Dialog.Close asChild>
@@ -117,8 +117,8 @@ export function MediaPreviewModal({
                 type="button"
                 aria-label="Close preview"
                 className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center
-                           rounded-full bg-gray-800/80 text-gray-400
-                           hover:bg-gray-700 hover:text-white
+                           rounded-full bg-[#1A1A1A]/80 text-[#A0A0A0]
+                           hover:bg-[#C9A84C] hover:text-black
                            transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -128,7 +128,7 @@ export function MediaPreviewModal({
             {/* ── Media preview pane ────────────────────────────────────── */}
             <div
               className="relative flex items-center justify-center
-                         bg-gray-950 lg:flex-1 min-h-48 lg:min-h-0
+                         bg-black lg:flex-1 min-h-48 lg:min-h-0
                          overflow-hidden rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none"
             >
               {isImage && (
@@ -171,24 +171,24 @@ export function MediaPreviewModal({
             {/* ── Sidebar: metadata + actions ───────────────────────────── */}
             <div
               className="flex flex-col w-full lg:w-80 xl:w-96 shrink-0
-                         border-t border-gray-800 lg:border-t-0 lg:border-l
+                         border-t border-[#1A1A1A] lg:border-t-0 lg:border-l border-[#1A1A1A]
                          overflow-y-auto"
             >
               {/* Header */}
-              <div className="px-5 pt-5 pb-4 border-b border-gray-800">
+              <div className="px-5 pt-5 pb-4 border-b border-[#1A1A1A]">
                 <Dialog.Title
                   className="text-base font-semibold text-white break-all leading-snug pr-8"
                 >
                   {media.original_name}
                 </Dialog.Title>
-                <p className="text-xs text-gray-500 mt-1 font-mono">
+                <p className="text-xs text-[#A0A0A0] mt-1 font-mono">
                   {media.mime_type}
                 </p>
               </div>
 
               {/* Metadata list */}
               <div className="px-5 py-3 flex-1">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                <p className="text-xs font-semibold text-[#A0A0A0] uppercase tracking-wider mb-1">
                   Details
                 </p>
 
@@ -222,8 +222,8 @@ export function MediaPreviewModal({
 
                 {/* Tags */}
                 {media.tags && media.tags.length > 0 && (
-                  <div className="py-2.5 border-b border-gray-800">
-                    <p className="text-xs text-gray-500 mb-2">Tags</p>
+                  <div className="py-2.5 border-b border-[#1A1A1A]">
+                    <p className="text-xs text-[#A0A0A0] mb-2">Tags</p>
                     <div className="flex flex-wrap gap-1.5">
                       {media.tags.map((tag) => (
                         <Badge key={tag} variant="default" size="sm">
@@ -236,7 +236,7 @@ export function MediaPreviewModal({
               </div>
 
               {/* Action buttons */}
-              <div className="px-5 pb-5 pt-3 flex flex-col gap-2 border-t border-gray-800">
+              <div className="px-5 pb-5 pt-3 flex flex-col gap-2 border-t border-[#1A1A1A]">
                 <Button
                   variant="primary"
                   size="md"

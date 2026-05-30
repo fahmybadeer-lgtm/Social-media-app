@@ -62,13 +62,13 @@ function toMediaFile(item: MediaItem): MediaFile {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl overflow-hidden bg-gray-900 border border-gray-800 animate-pulse">
+    <div className="rounded-xl overflow-hidden bg-[#111111] border border-[#1A1A1A] animate-pulse">
       {/* Thumbnail placeholder */}
-      <div className="aspect-square bg-gray-800" />
+      <div className="aspect-square bg-[#0D0D0D]" />
       {/* Text placeholder */}
       <div className="p-3 flex flex-col gap-2">
-        <div className="h-3.5 bg-gray-800 rounded w-3/4" />
-        <div className="h-3 bg-gray-800 rounded w-1/2" />
+        <div className="h-3.5 bg-[#1A1A1A] rounded w-3/4" />
+        <div className="h-3 bg-[#1A1A1A] rounded w-1/2" />
       </div>
     </div>
   );
@@ -102,12 +102,12 @@ function EmptyState({ filter }: EmptyStateProps) {
 
   return (
     <div className="col-span-full flex flex-col items-center justify-center py-16 gap-4 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-gray-800 flex items-center justify-center">
-        <LayoutGrid className="w-8 h-8 text-gray-600" />
+      <div className="w-16 h-16 rounded-2xl bg-[rgba(201,168,76,0.15)] flex items-center justify-center">
+        <LayoutGrid className="w-8 h-8 text-[#C9A84C]" />
       </div>
       <div>
         <p className="text-base font-medium text-white">{title}</p>
-        <p className="text-sm text-gray-500 mt-1 max-w-xs">{sub}</p>
+        <p className="text-sm text-[#A0A0A0] mt-1 max-w-xs">{sub}</p>
       </div>
     </div>
   );
@@ -133,8 +133,8 @@ function TabButton({ label, count, active, onClick }: TabButtonProps) {
         'flex items-center gap-1.5 px-3 h-8 rounded-lg text-sm font-medium',
         'transition-colors duration-150',
         active
-          ? 'bg-indigo-600 text-white'
-          : 'text-gray-400 hover:text-white hover:bg-gray-800'
+          ? 'bg-[#C9A84C] text-black'
+          : 'text-[#A0A0A0] hover:text-white hover:bg-[#111111]'
       )}
     >
       {label}
@@ -142,7 +142,7 @@ function TabButton({ label, count, active, onClick }: TabButtonProps) {
         <span
           className={cn(
             'text-xs rounded-full px-1.5 py-0.5 leading-none font-medium',
-            active ? 'bg-indigo-500/60 text-indigo-100' : 'bg-gray-700 text-gray-400'
+            active ? 'bg-[#A07830]/60 text-black' : 'bg-[#1A1A1A] text-[#A0A0A0]'
           )}
         >
           {count}
@@ -423,7 +423,7 @@ export function MediaLibraryGrid({ userId: _userId }: MediaLibraryGridProps) {
       {/* ── Toolbar: filters + sort ──────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Filter tabs */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-900 border border-gray-800 w-fit">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-[#111111] border border-[#1A1A1A] w-fit">
           <TabButton
             label="All"
             count={media.length}
@@ -448,7 +448,7 @@ export function MediaLibraryGrid({ userId: _userId }: MediaLibraryGridProps) {
         <div className="flex items-center gap-2">
           <label
             htmlFor="media-sort"
-            className="text-xs text-gray-500 shrink-0"
+            className="text-xs text-[#A0A0A0] shrink-0"
           >
             Sort:
           </label>
@@ -456,8 +456,8 @@ export function MediaLibraryGrid({ userId: _userId }: MediaLibraryGridProps) {
             id="media-sort"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as SortOption)}
-            className="h-8 rounded-lg px-2 pr-7 text-sm bg-gray-900 border border-gray-800
-                       text-white focus:outline-none focus:ring-1 focus:ring-indigo-500
+            className="h-8 rounded-lg px-2 pr-7 text-sm bg-[#111111] border border-[#1A1A1A]
+                       text-white focus:outline-none focus:ring-1 focus:ring-[#C9A84C]
                        cursor-pointer appearance-none"
           >
             <option value="newest">Newest first</option>
@@ -471,16 +471,16 @@ export function MediaLibraryGrid({ userId: _userId }: MediaLibraryGridProps) {
       {selectedIds.size > 0 && (
         <div
           className="flex items-center justify-between gap-3 px-4 py-3
-                     rounded-xl bg-indigo-600/10 border border-indigo-500/30"
+                     rounded-xl bg-[rgba(201,168,76,0.1)] border border-[#C9A84C]/30"
         >
           <div className="flex items-center gap-3">
-            <p className="text-sm font-medium text-indigo-300">
+            <p className="text-sm font-medium text-[#C9A84C]">
               {selectedIds.size} {selectedIds.size === 1 ? 'file' : 'files'} selected
             </p>
             <button
               type="button"
               onClick={selectAll}
-              className="text-xs text-indigo-400 hover:text-white transition-colors underline"
+              className="text-xs text-[#C9A84C] hover:text-white transition-colors underline"
             >
               Select all {filteredAndSorted.length}
             </button>
@@ -490,7 +490,7 @@ export function MediaLibraryGrid({ userId: _userId }: MediaLibraryGridProps) {
             <button
               type="button"
               onClick={clearSelection}
-              className="text-xs text-gray-400 hover:text-white transition-colors"
+              className="text-xs text-[#A0A0A0] hover:text-white transition-colors"
             >
               Clear
             </button>

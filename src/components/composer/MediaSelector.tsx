@@ -35,8 +35,8 @@ function MediaThumbnail({
       className={[
         'group relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900',
         isSelected
-          ? 'border-indigo-500 ring-2 ring-indigo-500/50'
-          : 'border-transparent hover:border-gray-600',
+          ? 'border-[#C9A84C] ring-2 ring-[#C9A84C]/50'
+          : 'border-transparent hover:border-[#C9A84C]/40',
       ].join(' ')}
       title={item.original_name}
     >
@@ -49,11 +49,11 @@ function MediaThumbnail({
           className="w-full h-full object-cover"
         />
       ) : (
-        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+        <div className="w-full h-full bg-[#0D0D0D] flex items-center justify-center">
           {item.file_type === 'video' ? (
-            <Video className="w-6 h-6 text-gray-500" />
+            <Video className="w-6 h-6 text-[#A0A0A0]" />
           ) : (
-            <ImageIcon className="w-6 h-6 text-gray-500" />
+            <ImageIcon className="w-6 h-6 text-[#A0A0A0]" />
           )}
         </div>
       )}
@@ -62,14 +62,14 @@ function MediaThumbnail({
       <div
         className={[
           'absolute inset-0 transition-opacity duration-150',
-          isSelected ? 'bg-indigo-600/20' : 'bg-black/0 group-hover:bg-black/30',
+          isSelected ? 'bg-[rgba(201,168,76,0.2)]' : 'bg-black/0 group-hover:bg-black/30',
         ].join(' ')}
       />
 
       {/* Selected checkmark */}
       {isSelected && (
-        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center shadow">
-          <Check className="w-3 h-3 text-white" strokeWidth={3} />
+        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#C9A84C] flex items-center justify-center shadow">
+          <Check className="w-3 h-3 text-black" strokeWidth={3} />
         </div>
       )}
 
@@ -118,12 +118,12 @@ export default function MediaSelector({
     <div className="space-y-3">
       {/* Header row */}
       <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-300">
+        <label className="block text-sm font-medium text-[#E5E5E5]">
           Browse Library
         </label>
         <Link
           href="/media-library"
-          className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 transition-colors"
+          className="flex items-center gap-1.5 rounded-lg bg-[#C9A84C] px-3 py-1.5 text-xs font-medium text-black hover:bg-[#E8C96A] transition-colors"
         >
           <Upload className="w-3.5 h-3.5" />
           Upload New
@@ -132,7 +132,7 @@ export default function MediaSelector({
 
       {/* Selected item summary */}
       {selectedItem && (
-        <div className="flex items-center gap-2 rounded-lg border border-indigo-500/40 bg-indigo-600/10 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-lg border border-[#C9A84C]/40 bg-[rgba(201,168,76,0.1)] px-3 py-2">
           {(selectedItem.thumbnail_url ?? selectedItem.file_url) ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -141,26 +141,26 @@ export default function MediaSelector({
               className="w-8 h-8 rounded object-cover flex-shrink-0"
             />
           ) : (
-            <div className="w-8 h-8 rounded bg-gray-700 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded bg-[#1A1A1A] flex items-center justify-center flex-shrink-0">
               {selectedItem.file_type === 'video' ? (
-                <Video className="w-4 h-4 text-gray-400" />
+                <Video className="w-4 h-4 text-[#A0A0A0]" />
               ) : (
-                <ImageIcon className="w-4 h-4 text-gray-400" />
+                <ImageIcon className="w-4 h-4 text-[#A0A0A0]" />
               )}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-indigo-300 truncate">
+            <p className="text-xs font-medium text-[#C9A84C] truncate">
               {selectedItem.original_name}
             </p>
-            <p className="text-[10px] text-gray-500">
+            <p className="text-[10px] text-[#A0A0A0]">
               {selectedItem.file_type} · {formatFileSize(selectedItem.file_size)}
             </p>
           </div>
           <button
             type="button"
             onClick={() => onSelect(null)}
-            className="text-gray-500 hover:text-white transition-colors flex-shrink-0"
+            className="text-[#A0A0A0] hover:text-white transition-colors flex-shrink-0"
             aria-label="Deselect media"
           >
             <X className="w-4 h-4" />
@@ -171,16 +171,16 @@ export default function MediaSelector({
       {/* Search + filter */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#A0A0A0] pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search media…"
-            className="w-full rounded-lg border border-gray-700 bg-gray-800 pl-8 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none transition-colors"
+            className="w-full rounded-lg border border-[#1A1A1A] bg-[#0D0D0D] pl-8 pr-3 py-2 text-sm text-white placeholder-[#A0A0A0] focus:border-[#C9A84C] focus:outline-none transition-colors"
           />
         </div>
-        <div className="flex rounded-lg border border-gray-700 bg-gray-800 overflow-hidden text-xs">
+        <div className="flex rounded-lg border border-[#1A1A1A] bg-[#0D0D0D] overflow-hidden text-xs">
           {(['all', 'image', 'video'] as const).map((filter) => (
             <button
               key={filter}
@@ -189,8 +189,8 @@ export default function MediaSelector({
               className={[
                 'px-2.5 py-2 font-medium capitalize transition-colors',
                 typeFilter === filter
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-400 hover:text-gray-200',
+                  ? 'bg-[#C9A84C] text-black'
+                  : 'text-[#A0A0A0] hover:text-[#E5E5E5]',
               ].join(' ')}
             >
               {filter}
@@ -200,21 +200,21 @@ export default function MediaSelector({
       </div>
 
       {/* Grid */}
-      <div className="max-h-64 overflow-y-auto rounded-lg border border-gray-800 bg-gray-900/50 p-2">
+      <div className="max-h-64 overflow-y-auto rounded-lg border border-[#1A1A1A] bg-[#0A0A0A] p-2">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             {media.length === 0 ? (
               <>
-                <ImageIcon className="w-10 h-10 text-gray-600 mb-3" />
-                <p className="text-sm font-medium text-gray-400">
+                <ImageIcon className="w-10 h-10 text-[#A0A0A0] mb-3" />
+                <p className="text-sm font-medium text-[#A0A0A0]">
                   No media in your library
                 </p>
-                <p className="text-xs text-gray-600 mt-1 mb-4">
+                <p className="text-xs text-[#A0A0A0]/60 mt-1 mb-4">
                   Upload images or videos to get started
                 </p>
                 <Link
                   href="/media-library"
-                  className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-500 transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg bg-[#C9A84C] px-4 py-2 text-xs font-medium text-black hover:bg-[#E8C96A] transition-colors"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   Go to Media Library
@@ -222,8 +222,8 @@ export default function MediaSelector({
               </>
             ) : (
               <>
-                <Search className="w-8 h-8 text-gray-600 mb-2" />
-                <p className="text-sm text-gray-400">
+                <Search className="w-8 h-8 text-[#A0A0A0] mb-2" />
+                <p className="text-sm text-[#A0A0A0]">
                   No results for &ldquo;{searchQuery}&rdquo;
                 </p>
               </>
@@ -246,7 +246,7 @@ export default function MediaSelector({
       </div>
 
       {filtered.length > 0 && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-[#A0A0A0]">
           {filtered.length} item{filtered.length !== 1 ? 's' : ''}
           {selectedMediaId ? ' · 1 selected' : ''}
         </p>

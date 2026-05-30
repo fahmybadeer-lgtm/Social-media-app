@@ -235,16 +235,16 @@ export default function ComposerPage() {
         />
       )}
 
-      <div className="min-h-screen bg-gray-950">
+      <div className="min-h-screen bg-[#0A0A0A]">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
           {/* Page header */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-1">
-              <PenSquare className="w-5 h-5 text-indigo-400" />
+              <PenSquare className="w-5 h-5 text-[#C9A84C]" />
               <h1 className="text-2xl font-bold text-white">Create Post</h1>
             </div>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-[#A0A0A0]">
               Compose and schedule content for your social platforms
             </p>
           </div>
@@ -258,10 +258,10 @@ export default function ComposerPage() {
             <div className="flex-1 lg:max-w-[60%] space-y-5">
 
               {/* Title (optional) */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 space-y-2">
-                <label htmlFor="post-title" className="block text-sm font-medium text-gray-300">
+              <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5 space-y-2">
+                <label htmlFor="post-title" className="block text-sm font-medium text-[#E5E5E5]">
                   Post Title{' '}
-                  <span className="text-gray-500 font-normal">(internal only, optional)</span>
+                  <span className="text-[#A0A0A0] font-normal">(internal only, optional)</span>
                 </label>
                 <input
                   id="post-title"
@@ -269,14 +269,14 @@ export default function ComposerPage() {
                   value={form.title}
                   onChange={(e) => patch('title', e.target.value)}
                   placeholder="e.g. Summer sale announcement"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-[#1A1A1A] bg-[#0D0D0D] px-3 py-2.5 text-sm text-white placeholder-[#A0A0A0] focus:border-[#C9A84C] focus:outline-none transition-colors"
                 />
               </div>
 
               {/* Media selector */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
+              <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5">
                 {mediaLoading ? (
-                  <div className="flex items-center gap-2 py-6 justify-center text-gray-500">
+                  <div className="flex items-center gap-2 py-6 justify-center text-[#A0A0A0]">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span className="text-sm">Loading media library…</span>
                   </div>
@@ -290,9 +290,9 @@ export default function ComposerPage() {
               </div>
 
               {/* Caption textarea */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 space-y-2">
+              <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5 space-y-2">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="caption" className="block text-sm font-medium text-gray-300">
+                  <label htmlFor="caption" className="block text-sm font-medium text-[#E5E5E5]">
                     Caption
                   </label>
                   <span
@@ -302,7 +302,7 @@ export default function ComposerPage() {
                         ? 'text-red-400 font-medium'
                         : captionLimit !== null && captionLength > captionLimit * 0.9
                         ? 'text-amber-400'
-                        : 'text-gray-500',
+                        : 'text-[#A0A0A0]',
                     ].join(' ')}
                   >
                     {captionLength}
@@ -316,8 +316,8 @@ export default function ComposerPage() {
                   rows={5}
                   placeholder="Write your caption here, or use the AI generator below…"
                   className={[
-                    'w-full resize-none rounded-lg border bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none transition-colors',
-                    captionOverLimit ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-indigo-500',
+                    'w-full resize-none rounded-lg border bg-[#0D0D0D] px-3 py-2.5 text-sm text-white placeholder-[#A0A0A0] focus:outline-none transition-colors',
+                    captionOverLimit ? 'border-red-500 focus:border-red-500' : 'border-[#1A1A1A] focus:border-[#C9A84C]',
                   ].join(' ')}
                 />
                 {captionOverLimit && (
@@ -328,7 +328,7 @@ export default function ComposerPage() {
               </div>
 
               {/* AI caption generator */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
+              <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5">
                 <AICaptionGenerator
                   onCaptionGenerated={(caption) => patch('caption', caption)}
                   platforms={form.platforms}
@@ -336,7 +336,7 @@ export default function ComposerPage() {
               </div>
 
               {/* Hashtag input */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
+              <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5">
                 <HashtagInput
                   hashtags={form.hashtags}
                   onChange={(hashtags) => patch('hashtags', hashtags)}
@@ -344,7 +344,7 @@ export default function ComposerPage() {
               </div>
 
               {/* Platform selector */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
+              <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5">
                 <PlatformSelector
                   selectedPlatforms={form.platforms}
                   onChange={(platforms) => patch('platforms', platforms)}
@@ -353,7 +353,7 @@ export default function ComposerPage() {
               </div>
 
               {/* Schedule selector */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
+              <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5">
                 <ScheduleSelector
                   status={form.status as 'draft' | 'scheduled'}
                   scheduledAt={form.scheduledAt}
@@ -371,10 +371,10 @@ export default function ComposerPage() {
                   onClick={() => handleSubmit('draft')}
                   disabled={isSaving || form.platforms.length === 0}
                   className={[
-                    'flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-700 px-5 py-3 text-sm font-medium transition-all',
+                    'flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#C9A84C] px-5 py-3 text-sm font-medium transition-all',
                     isSaving || form.platforms.length === 0
-                      ? 'cursor-not-allowed text-gray-500'
-                      : 'text-gray-300 hover:border-gray-600 hover:bg-gray-800 hover:text-white',
+                      ? 'cursor-not-allowed text-[#A0A0A0] border-[#1A1A1A]'
+                      : 'text-[#C9A84C] hover:bg-[rgba(201,168,76,0.15)]',
                   ].join(' ')}
                 >
                   {isSaving && form.status === 'draft' ? (
@@ -392,8 +392,8 @@ export default function ComposerPage() {
                   className={[
                     'flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all',
                     !canSubmit
-                      ? 'cursor-not-allowed bg-gray-700 text-gray-500'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700 shadow-lg shadow-indigo-900/30',
+                      ? 'cursor-not-allowed bg-[#1A1A1A] text-[#A0A0A0]'
+                      : 'bg-[#C9A84C] text-black hover:bg-[#E8C96A] active:bg-[#A07830] shadow-lg shadow-[#C9A84C]/20',
                   ].join(' ')}
                 >
                   {isSaving && form.status !== 'draft' ? (
@@ -424,8 +424,8 @@ export default function ComposerPage() {
             ---------------------------------------------------------------- */}
             <div className="lg:w-[40%] lg:max-w-[40%]">
               <div className="lg:sticky lg:top-6">
-                <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-                  <h2 className="text-sm font-semibold text-gray-300 mb-4">Live Preview</h2>
+                <div className="rounded-xl border border-[#1A1A1A] bg-[#111111] p-5">
+                  <h2 className="text-sm font-semibold text-[#E5E5E5] mb-4">Live Preview</h2>
                   <PostPreview
                     caption={form.caption}
                     hashtags={form.hashtags}

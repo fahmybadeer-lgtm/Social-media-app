@@ -42,15 +42,15 @@ export default function AccountCard({
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-gray-800 bg-gray-900 p-5">
+    <div className="flex items-center justify-between rounded-xl border border-[#1A1A1A] bg-[#111111] p-5">
       <div className="flex items-center gap-4">
         <div className="shrink-0">{icon}</div>
         <div>
           <p className="text-sm font-semibold text-white">{platformName}</p>
           {isConnected ? (
-            <p className="mt-0.5 text-xs text-gray-400">{connectedUsername}</p>
+            <p className="mt-0.5 text-xs text-[#A0A0A0]">{connectedUsername}</p>
           ) : (
-            <p className="mt-0.5 text-xs text-gray-500">Not connected</p>
+            <p className="mt-0.5 text-xs text-[#A0A0A0]/60">Not connected</p>
           )}
         </div>
       </div>
@@ -66,14 +66,14 @@ export default function AccountCard({
             type="button"
             onClick={handleDisconnect}
             disabled={isDisconnecting}
-            className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-red-500/50 hover:bg-red-900/20 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-[#1A1A1A] bg-[#0D0D0D] px-3 py-1.5 text-xs font-medium text-[#A0A0A0] transition-colors hover:border-red-500/50 hover:bg-red-900/20 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isDisconnecting ? 'Disconnecting…' : 'Disconnect'}
           </button>
         ) : (
           <a
             href={`/api/auth/${platform}`}
-            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
+            className="rounded-lg bg-[#C9A84C] px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-[#E8C96A]"
           >
             Connect
           </a>

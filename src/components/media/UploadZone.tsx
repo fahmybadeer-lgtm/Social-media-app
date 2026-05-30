@@ -37,9 +37,9 @@ export interface UploadZoneProps {
 
 function FileTypeIcon({ mimeType, className }: { mimeType: string; className?: string }) {
   if (mimeType.startsWith('video/')) {
-    return <FileVideo className={cn('text-indigo-400', className)} />;
+    return <FileVideo className={cn('text-[#C9A84C]', className)} />;
   }
-  return <FileImage className={cn('text-indigo-400', className)} />;
+  return <FileImage className={cn('text-[#C9A84C]', className)} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -58,7 +58,7 @@ function QueuedFileRow({ file, progressItem, onRemove, isUploading }: QueuedFile
   const progress = progressItem?.progress ?? 0;
 
   return (
-    <li className="flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-gray-800/60 border border-gray-700/60">
+    <li className="flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-[#111111] border border-[#1A1A1A]">
       {/* Top row */}
       <div className="flex items-center gap-2.5 min-w-0">
         <FileTypeIcon mimeType={file.type} className="w-4 h-4 shrink-0" />
@@ -78,7 +78,7 @@ function QueuedFileRow({ file, progressItem, onRemove, isUploading }: QueuedFile
             <AlertCircle className="w-4 h-4 text-red-400" aria-label="Upload error" />
           )}
           {status === 'uploading' && (
-            <Loader2 className="w-4 h-4 text-indigo-400 animate-spin" aria-label="Uploading" />
+            <Loader2 className="w-4 h-4 text-[#C9A84C] animate-spin" aria-label="Uploading" />
           )}
           {!isUploading && status !== 'done' && (
             <button
@@ -95,11 +95,11 @@ function QueuedFileRow({ file, progressItem, onRemove, isUploading }: QueuedFile
 
       {/* Progress bar (visible during upload) */}
       {(status === 'uploading' || status === 'done') && (
-        <div className="w-full h-1 rounded-full bg-gray-700 overflow-hidden">
+        <div className="w-full h-1 rounded-full bg-[#1A1A1A] overflow-hidden">
           <div
             className={cn(
               'h-full rounded-full transition-all duration-300',
-              status === 'done' ? 'bg-emerald-500' : 'bg-indigo-500'
+              status === 'done' ? 'bg-emerald-500' : 'bg-[#C9A84C]'
             )}
             style={{ width: `${progress}%` }}
           />
@@ -256,10 +256,10 @@ export function UploadZone({
           'relative flex flex-col items-center justify-center gap-3',
           'rounded-xl border-2 border-dashed py-10 px-6 cursor-pointer',
           'transition-colors duration-200 select-none',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A84C] focus-visible:ring-offset-2 focus-visible:ring-offset-black',
           isDragOver
-            ? 'border-indigo-500 bg-indigo-500/5'
-            : 'border-gray-700 bg-gray-900/50 hover:border-gray-600 hover:bg-gray-900',
+            ? 'border-[#C9A84C] bg-[rgba(201,168,76,0.05)]'
+            : 'border-[#1A1A1A] bg-[#111111] hover:border-[#C9A84C]/40 hover:bg-[#0D0D0D]',
           isUploading && 'pointer-events-none opacity-60'
         )}
       >
@@ -268,13 +268,13 @@ export function UploadZone({
           className={cn(
             'flex items-center justify-center w-14 h-14 rounded-full',
             'transition-colors duration-200',
-            isDragOver ? 'bg-indigo-500/20' : 'bg-gray-800'
+            isDragOver ? 'bg-[rgba(201,168,76,0.2)]' : 'bg-[#1A1A1A]'
           )}
         >
           <CloudUpload
             className={cn(
               'w-7 h-7 transition-colors duration-200',
-              isDragOver ? 'text-indigo-400' : 'text-gray-400'
+              isDragOver ? 'text-[#C9A84C]' : 'text-[#A0A0A0]'
             )}
           />
         </div>
@@ -284,7 +284,7 @@ export function UploadZone({
           <p className="text-sm font-medium text-white">
             {isDragOver ? 'Drop files to upload' : 'Drag files here or click to browse'}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-[#A0A0A0]">
             Supports images and videos &bull; Up to {MAX_FILES} files
           </p>
         </div>
@@ -302,16 +302,16 @@ export function UploadZone({
       {hasFiles && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-300">
+            <h3 className="text-sm font-medium text-[#E5E5E5]">
               {isUploading ? 'Uploading' : 'Ready to upload'}{' '}
-              <span className="text-indigo-400">{queuedFiles.length}</span>{' '}
+              <span className="text-[#C9A84C]">{queuedFiles.length}</span>{' '}
               {queuedFiles.length === 1 ? 'file' : 'files'}
             </h3>
             {!isUploading && !allDone && (
               <button
                 type="button"
                 onClick={() => setQueuedFiles([])}
-                className="text-xs text-gray-500 hover:text-white transition-colors"
+                className="text-xs text-[#A0A0A0] hover:text-white transition-colors"
               >
                 Clear all
               </button>

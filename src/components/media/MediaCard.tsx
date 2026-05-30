@@ -56,7 +56,7 @@ function DeleteConfirm({ onConfirm, onCancel }: DeleteConfirmProps) {
   return (
     <div
       className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50
-                 bg-gray-800 border border-red-500/30 rounded-xl shadow-xl
+                 bg-[#111111] border border-red-500/30 rounded-xl shadow-xl
                  p-3 w-48 text-center"
       role="dialog"
       aria-modal="true"
@@ -66,7 +66,7 @@ function DeleteConfirm({ onConfirm, onCancel }: DeleteConfirmProps) {
       <div
         className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0
                    border-x-[6px] border-x-transparent
-                   border-t-[6px] border-t-gray-800"
+                   border-t-[6px] border-t-[#111111]"
         aria-hidden="true"
       />
 
@@ -74,13 +74,13 @@ function DeleteConfirm({ onConfirm, onCancel }: DeleteConfirmProps) {
         <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
         <p className="text-xs font-medium text-white">Delete this file?</p>
       </div>
-      <p className="text-xs text-gray-400 mb-3">This cannot be undone.</p>
+      <p className="text-xs text-[#A0A0A0] mb-3">This cannot be undone.</p>
       <div className="flex gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 h-7 text-xs rounded-lg bg-gray-700 text-gray-300
-                     hover:bg-gray-600 transition-colors"
+          className="flex-1 h-7 text-xs rounded-lg bg-[#1A1A1A] text-[#A0A0A0]
+                     hover:bg-[#0D0D0D] transition-colors"
         >
           Cancel
         </button>
@@ -172,10 +172,10 @@ export function MediaCard({
     <article
       className={cn(
         'group relative flex flex-col rounded-xl overflow-hidden',
-        'bg-gray-900 border transition-all duration-200',
+        'bg-[#111111] border transition-all duration-200',
         isSelected
-          ? 'border-indigo-500 ring-2 ring-indigo-500/30'
-          : 'border-gray-800 hover:border-gray-700'
+          ? 'border-[#C9A84C] ring-2 ring-[#C9A84C]/30'
+          : 'border-[#1A1A1A] hover:border-[#C9A84C]/40'
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
@@ -184,7 +184,7 @@ export function MediaCard({
       }}
     >
       {/* ── Thumbnail area ──────────────────────────────────────────────── */}
-      <div className="relative aspect-square bg-gray-800 overflow-hidden">
+      <div className="relative aspect-square bg-[#0D0D0D] overflow-hidden">
         {thumbSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -195,8 +195,8 @@ export function MediaCard({
           />
         ) : (
           /* Fallback for unprocessed video / no thumbnail */
-          <div className="w-full h-full flex items-center justify-center bg-gray-800">
-            <Play className="w-10 h-10 text-gray-600" />
+          <div className="w-full h-full flex items-center justify-center bg-[#0D0D0D]">
+            <Play className="w-10 h-10 text-[#A0A0A0]" />
           </div>
         )}
 
@@ -223,8 +223,8 @@ export function MediaCard({
             type="button"
             onClick={() => onPreview(media)}
             aria-label={`Preview ${media.original_name}`}
-            className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900/80
-                       text-white hover:bg-indigo-600 transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg bg-black/80
+                       text-white hover:bg-[#C9A84C] hover:text-black transition-colors"
           >
             <Eye className="w-4 h-4" />
           </button>
@@ -234,8 +234,8 @@ export function MediaCard({
             type="button"
             onClick={startEditing}
             aria-label={`Rename ${media.original_name}`}
-            className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900/80
-                       text-white hover:bg-indigo-600 transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-lg bg-black/80
+                       text-white hover:bg-[#C9A84C] hover:text-black transition-colors"
           >
             <Pencil className="w-4 h-4" />
           </button>
@@ -247,7 +247,7 @@ export function MediaCard({
               onClick={() => setShowDeleteConfirm((v) => !v)}
               aria-label={`Delete ${media.original_name}`}
               aria-expanded={showDeleteConfirm}
-              className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900/80
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-black/80
                          text-white hover:bg-red-600 transition-colors"
             >
               <Trash2 className="w-4 h-4" />
@@ -285,11 +285,11 @@ export function MediaCard({
               'w-5 h-5 rounded-md border-2 flex items-center justify-center',
               'transition-colors duration-150',
               isSelected
-                ? 'bg-indigo-600 border-indigo-600'
-                : 'bg-gray-900/80 border-gray-500 hover:border-indigo-500'
+                ? 'bg-[#C9A84C] border-[#C9A84C]'
+                : 'bg-black/80 border-[#A0A0A0] hover:border-[#C9A84C]'
             )}
           >
-            {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+            {isSelected && <Check className="w-3 h-3 text-black" strokeWidth={3} />}
           </button>
         </div>
 
@@ -316,9 +316,9 @@ export function MediaCard({
                 if (e.key === 'Escape') cancelRename();
               }}
               onBlur={commitRename}
-              className="flex-1 min-w-0 bg-gray-800 border border-indigo-500 rounded-md
+              className="flex-1 min-w-0 bg-[#0D0D0D] border border-[#C9A84C] rounded-md
                          px-2 py-0.5 text-sm text-white focus:outline-none
-                         focus:ring-1 focus:ring-indigo-500"
+                         focus:ring-1 focus:ring-[#C9A84C]"
               aria-label="Rename file"
             />
             <button
@@ -326,7 +326,7 @@ export function MediaCard({
               onMouseDown={(e) => { e.preventDefault(); commitRename(); }}
               aria-label="Confirm rename"
               className="shrink-0 w-6 h-6 flex items-center justify-center rounded
-                         text-emerald-400 hover:bg-gray-700 transition-colors"
+                         text-[#C9A84C] hover:bg-[#1A1A1A] transition-colors"
             >
               <Check className="w-3.5 h-3.5" />
             </button>
@@ -335,7 +335,7 @@ export function MediaCard({
               onMouseDown={(e) => { e.preventDefault(); cancelRename(); }}
               aria-label="Cancel rename"
               className="shrink-0 w-6 h-6 flex items-center justify-center rounded
-                         text-gray-400 hover:bg-gray-700 transition-colors"
+                         text-[#A0A0A0] hover:bg-[#1A1A1A] transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -352,11 +352,11 @@ export function MediaCard({
 
         {/* Size + duration */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-gray-500">{formatFileSize(media.file_size)}</span>
+          <span className="text-xs text-[#A0A0A0]">{formatFileSize(media.file_size)}</span>
           {media.file_type === 'video' && media.duration_seconds != null && (
             <>
-              <span className="text-gray-700 text-xs">·</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-[#1A1A1A] text-xs">·</span>
+              <span className="text-xs text-[#A0A0A0]">
                 {formatDuration(media.duration_seconds)}
               </span>
             </>
@@ -364,8 +364,8 @@ export function MediaCard({
           {/* Dimensions for images */}
           {media.file_type === 'image' && media.width && media.height && (
             <>
-              <span className="text-gray-700 text-xs">·</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-[#1A1A1A] text-xs">·</span>
+              <span className="text-xs text-[#A0A0A0]">
                 {media.width}×{media.height}
               </span>
             </>

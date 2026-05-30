@@ -45,7 +45,7 @@ function MediaElement({
     return (
       <div
         className={[
-          'flex items-center justify-center bg-gray-800 text-gray-600',
+          'flex items-center justify-center bg-[#0D0D0D] text-[#A0A0A0]',
           className ?? '',
         ].join(' ')}
       >
@@ -414,7 +414,7 @@ export default function PostPreview({
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Platform tabs */}
-      <div className="flex gap-1 rounded-lg bg-gray-800/60 p-1 border border-gray-700 self-stretch">
+      <div className="flex gap-1 rounded-lg bg-[#111111] p-1 border border-[#1A1A1A] self-stretch">
         {availablePlatforms.map((p) => (
           <button
             key={p}
@@ -423,8 +423,8 @@ export default function PostPreview({
             className={[
               'flex-1 rounded-md px-2 py-1 text-xs font-medium transition-all duration-150',
               displayPlatform === p
-                ? 'bg-indigo-600 text-white shadow'
-                : 'text-gray-400 hover:text-gray-200',
+                ? 'bg-[#C9A84C] text-black shadow'
+                : 'text-[#A0A0A0] hover:text-[#E5E5E5]',
             ].join(' ')}
           >
             {PLATFORM_LABELS[p]}
@@ -435,9 +435,9 @@ export default function PostPreview({
       {/* Phone frame */}
       <div className="w-[220px] flex-shrink-0">
         {/* Phone shell */}
-        <div className="relative rounded-[2rem] border-4 border-gray-700 bg-gray-900 shadow-2xl overflow-hidden">
+        <div className="relative rounded-[2rem] border-4 border-[#C9A84C]/40 bg-[#111111] shadow-2xl overflow-hidden">
           {/* Notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-gray-700 rounded-b-xl z-10" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#1A1A1A] rounded-b-xl z-10" />
 
           {/* Screen content */}
           <div className="mt-4 overflow-hidden rounded-b-[1.5rem] min-h-[380px] overflow-y-auto">
@@ -446,12 +446,12 @@ export default function PostPreview({
 
           {/* Home indicator bar */}
           <div className="flex justify-center py-2 bg-black">
-            <div className="w-14 h-1 bg-gray-600 rounded-full" />
+            <div className="w-14 h-1 bg-[#C9A84C]/40 rounded-full" />
           </div>
         </div>
       </div>
 
-      <p className="text-xs text-gray-500 text-center">
+      <p className="text-xs text-[#A0A0A0] text-center">
         Live preview — actual appearance may vary
       </p>
     </div>

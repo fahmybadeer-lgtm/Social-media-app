@@ -89,15 +89,15 @@ export default async function SettingsPage({
   const errorParam = resolvedSearchParams['error']
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-[#0A0A0A]">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-1">
-            <Settings className="w-5 h-5 text-indigo-400" />
+            <Settings className="w-5 h-5 text-[#C9A84C]" />
             <h1 className="text-2xl font-bold text-white">Settings</h1>
           </div>
-          <p className="text-sm text-gray-400">Manage your social media account connections.</p>
+          <p className="text-sm text-[#A0A0A0]">Manage your social media account connections.</p>
         </div>
 
         {/* Status banners */}
@@ -123,7 +123,7 @@ export default async function SettingsPage({
 
         {/* Social connections section */}
         <section>
-          <h2 className="mb-4 text-base font-semibold text-gray-200">Social Media Connections</h2>
+          <h2 className="mb-4 text-base font-semibold text-[#E5E5E5]">Social Media Connections</h2>
           <div className="space-y-3">
             {PLATFORMS.map((p) => {
               const token = tokens.find((t) => t.platform === p.id)

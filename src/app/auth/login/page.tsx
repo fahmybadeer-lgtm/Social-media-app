@@ -110,26 +110,26 @@ export default function LoginPage() {
   // --------------------------------------------------------------------------
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-black px-4 py-12">
       <div className="w-full max-w-md space-y-8">
 
         {/* Logo */}
         <div className="flex flex-col items-center text-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 shadow-xl shadow-indigo-900/50">
-            <Zap className="w-6 h-6 text-white fill-white" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#C9A84C] shadow-xl shadow-[#C9A84C]/20">
+            <Zap className="w-6 h-6 text-black fill-black" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-indigo-400 tracking-tight">
+            <h1 className="text-3xl font-bold text-[#C9A84C] tracking-tight">
               SocialStudio
             </h1>
-            <p className="mt-1 text-sm text-gray-400">
+            <p className="mt-1 text-sm text-[#A0A0A0]">
               Sign in to your account
             </p>
           </div>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-gray-800 bg-gray-900 px-8 py-8 shadow-2xl space-y-6">
+        <div className="rounded-2xl border border-[#1A1A1A] bg-[#111111] px-8 py-8 shadow-2xl space-y-6">
 
           {/* Error message */}
           {error && (
@@ -143,7 +143,7 @@ export default function LoginPage() {
           <form onSubmit={handleSignIn} className="space-y-4">
             {/* Email */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+              <label htmlFor="email" className="block text-sm font-medium text-[#E5E5E5]">
                 Email address
               </label>
               <input
@@ -154,13 +154,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none transition-colors"
+                className="w-full rounded-lg border border-[#1A1A1A] bg-[#0D0D0D] px-3 py-2.5 text-sm text-white placeholder-[#A0A0A0] focus:border-[#C9A84C] focus:outline-none transition-colors"
               />
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+              <label htmlFor="password" className="block text-sm font-medium text-[#E5E5E5]">
                 Password
               </label>
               <div className="relative">
@@ -172,12 +172,12 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2.5 pr-10 text-sm text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none transition-colors"
+                  className="w-full rounded-lg border border-[#1A1A1A] bg-[#0D0D0D] px-3 py-2.5 pr-10 text-sm text-white placeholder-[#A0A0A0] focus:border-[#C9A84C] focus:outline-none transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A0A0A0] hover:text-white transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -196,8 +196,8 @@ export default function LoginPage() {
               className={[
                 'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150',
                 loading || !email || !password
-                  ? 'cursor-not-allowed bg-gray-700 text-gray-400'
-                  : 'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700 shadow-lg shadow-indigo-900/30',
+                  ? 'cursor-not-allowed bg-[#1A1A1A] text-[#A0A0A0]'
+                  : 'bg-[#C9A84C] text-black hover:bg-[#E8C96A] active:bg-[#A07830] shadow-lg shadow-[#C9A84C]/20',
               ].join(' ')}
             >
               {loading ? (
@@ -214,10 +214,10 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700" />
+              <div className="w-full border-t border-[#1A1A1A]" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-gray-900 px-3 text-xs text-gray-500">
+              <span className="bg-[#111111] px-3 text-xs text-[#A0A0A0]">
                 or continue with
               </span>
             </div>
@@ -231,8 +231,8 @@ export default function LoginPage() {
             className={[
               'flex w-full items-center justify-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-150',
               googleLoading
-                ? 'cursor-not-allowed border-gray-700 text-gray-500'
-                : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:bg-gray-800 hover:text-white',
+                ? 'cursor-not-allowed border-[#1A1A1A] text-[#A0A0A0]'
+                : 'border-[#1A1A1A] text-[#E5E5E5] hover:border-[#C9A84C]/40 hover:bg-[#0D0D0D] hover:text-white',
             ].join(' ')}
           >
             {googleLoading ? (
@@ -244,11 +244,11 @@ export default function LoginPage() {
           </button>
 
           {/* Sign up link */}
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-[#A0A0A0]">
             Don&apos;t have an account?{' '}
             <Link
               href="/auth/signup"
-              className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="font-medium text-[#C9A84C] hover:text-[#E8C96A] transition-colors"
             >
               Sign up
             </Link>
