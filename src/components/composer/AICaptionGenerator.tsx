@@ -49,7 +49,7 @@ export default function AICaptionGenerator({
   const overLimit = captionLength > charLimit
 
   async function generate() {
-    if (!rawConcept.trim()) return
+    if (!rawConcept.trim() || platforms.length === 0) return
 
     setState('loading')
     setErrorMessage('')
@@ -110,15 +110,22 @@ export default function AICaptionGenerator({
         />
       </div>
 
+      {/* Platform hint */}
+      {platforms.length === 0 && (
+        <p className="text-xs text-amber-400">
+          Select at least one platform above before generating a caption.
+        </p>
+      )}
+
       {/* Generate button */}
       <button
         type="button"
         onClick={generate}
-        disabled={!rawConcept.trim() || state === 'loading'}
+        disabled={!rawConcept.trim() || platforms.length === 0 || state === 'loading'}
         className={[
           'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800',
-          !rawConcept.trim() || state === 'loading'
+          !rawConcept.trim() || platforms.length === 0 || state === 'loading'
             ? 'cursor-not-allowed bg-gray-700 text-gray-400'
             : 'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700',
         ].join(' ')}
