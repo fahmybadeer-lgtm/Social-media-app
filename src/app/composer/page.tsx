@@ -163,7 +163,7 @@ export default function ComposerPage() {
         platforms: form.platforms,
         media_ids: form.selectedMediaId ? [form.selectedMediaId] : [],
         status: submitStatus,
-        raw_concept: form.rawConcept || null,
+        ...(submitStatus === 'published' ? { publish_now: true } : {}),
         ...(form.scheduledAt ? { scheduled_at: form.scheduledAt } : {}),
         metadata: {},
       }
@@ -180,7 +180,9 @@ export default function ComposerPage() {
       }
 
       const successMsg =
-        submitStatus === 'scheduled'
+        submitStatus === 'published'
+          ? 'Post published to Facebook!'
+          : submitStatus === 'scheduled'
           ? 'Post scheduled successfully!'
           : 'Draft saved successfully!'
 
@@ -370,7 +372,11 @@ export default function ComposerPage() {
 
                 <button
                   type="button"
-                  onClick={() => handleSubmit('scheduled')}
+                  onClick={() =>
+                    form.status === 'scheduled'
+                      ? handleSubmit('scheduled')
+                      : handleSubmit('published')
+                  }
                   disabled={!canSubmit}
                   className={[
                     'flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all',

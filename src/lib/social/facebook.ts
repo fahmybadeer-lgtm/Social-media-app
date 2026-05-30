@@ -1,0 +1,81 @@
+const GRAPH_API_VERSION = 'v20.0';
+const GRAPH_API_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`;
+
+export interface FacebookPostResult {
+  id: string;
+}
+
+export interface PublishToFacebookParams {
+  message: string;
+  mediaUrl?: string;
+  mediaType?: 'image' | 'video';
+  pageId: string;
+  accessToken: string;
+}
+
+async function graphPost(
+  endpoint: string,
+  params: Record<string, string>,
+): Promise<FacebookPostResult> {
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(params).toString(),
+  });
+
+  const data = (await res.json()) as {
+    id?: string;
+    post_id?: string;
+    error?: { message?: string; code?: number; type?: string };
+  };
+
+  if (!res.ok || data.error) {
+    throw new Error(
+      data.error?.message ?? `Facebook Graph API error ${res.status}`,
+    );
+  }
+
+  const id = data.id ?? data.post_id;
+  if (!id) {
+    throw new Error('Facebook API returned no post ID');
+  }
+
+  return { id };
+}
+
+/** Post text + optional image to a Facebook Page. */
+export async function publishToFacebook(
+  params: PublishToFacebookParams,
+): Promise<FacebookPostResult> {
+  const { message, mediaUrl, mediaType, pageId, accessToken } = params;
+
+  if (mediaUrl && mediaType === 'image') {
+    return graphPost(`${GRAPH_API_BASE}/${pageId}/photos`, {
+      url: mediaUrl,
+      caption: message,
+      access_token: accessToken,
+    });
+  }
+
+  if (mediaUrl && mediaType === 'video') {
+    return graphPost(`${GRAPH_API_BASE}/${pageId}/videos`, {
+      file_url: mediaUrl,
+      description: message,
+      access_token: accessToken,
+    });
+  }
+
+  return graphPost(`${GRAPH_API_BASE}/${pageId}/feed`, {
+    message,
+    access_token: accessToken,
+  });
+}
+
+/** Combines caption and hashtags into a single Facebook message string. */
+export function buildFacebookMessage(
+  caption: string,
+  hashtags: string[],
+): string {
+  const hashtagLine = hashtags.map((t) => `#${t}`).join(' ');
+  return [caption, hashtagLine].filter(Boolean).join('\n\n');
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { publishToFacebook, buildFacebookMessage } from '@/lib/social/facebook';
 import type { Post, ScheduledQueueItem } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -68,8 +69,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 //   raw_concept?: string;
 //   voice_profile_id?: string;
 //   title?: string;
+//   publish_now?: boolean;   // when true, immediately posts to configured platforms
 // }
 // Creates the post then creates one scheduled_queue row per platform.
+// When publish_now is true, also calls the Facebook Graph API and updates
+// the queue row with the result (published / failed).
 // ---------------------------------------------------------------------------
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
@@ -93,6 +97,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     raw_concept?: unknown;
     voice_profile_id?: unknown;
     title?: unknown;
+    publish_now?: unknown;
   };
 
   try {
@@ -203,20 +208,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // --- Create one scheduled_queue row per platform ---
   const platforms = body.platforms as string[];
+  const publishNow = body.publish_now === true;
+
   // Default to now so the scheduled_queue NOT NULL constraint is always satisfied.
-  // For "Publish Now" the caller omits scheduled_at, meaning "immediately".
   const scheduledAt =
     typeof body.scheduled_at === 'string' ? body.scheduled_at : now;
 
-  // Map post status to a compatible queue status
-  // 'published' and 'failed' are not initial queue states for new posts
-  // but we honour whatever the caller sets.
   type QueueStatus = ScheduledQueueItem['status'];
   const queueStatus: QueueStatus =
     postStatus === 'scheduled'
       ? 'scheduled'
-      : postStatus === 'published'
-      ? 'published'
       : postStatus === 'failed'
       ? 'failed'
       : 'draft';
@@ -225,7 +226,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     user_id: user.id,
     post_id: post.id,
     platform,
-    status: queueStatus,
+    // facebook items go to 'processing' when publishing immediately;
+    // other platforms stay 'scheduled' until their integration is built.
+    status: publishNow
+      ? platform === 'facebook'
+        ? ('processing' as const)
+        : ('scheduled' as const)
+      : queueStatus,
     scheduled_at: scheduledAt,
     retry_count: 0,
     metadata: {},
@@ -239,7 +246,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .select();
 
   if (queueError) {
-    // Post was created; log the queue failure but still return the post.
     console.error(
       `[posts/POST] Failed to create queue items for post ${post.id}: ${queueError.message}`
     );
@@ -253,11 +259,107 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
+  const insertedQueueItems = (queueItems ?? []) as ScheduledQueueItem[];
+
+  // --- Publish to Facebook immediately when requested ---
+  if (!publishNow) {
+    return NextResponse.json(
+      { post, queue_items: insertedQueueItems },
+      { status: 201 }
+    );
+  }
+
+  const fbPageId = process.env.FACEBOOK_PAGE_ID;
+  const fbAccessToken = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+
+  // Look up media URL for the first attached asset, if any
+  const mediaIds = Array.isArray(body.media_ids) ? (body.media_ids as string[]) : [];
+  let mediaUrl: string | undefined;
+  let mediaType: 'image' | 'video' | undefined;
+
+  if (mediaIds.length > 0) {
+    const { data: mediaRows } = await supabase
+      .from('media_library')
+      .select('file_url, file_type')
+      .in('id', mediaIds)
+      .limit(1);
+
+    if (mediaRows && mediaRows.length > 0) {
+      const first = mediaRows[0] as { file_url: string; file_type: string };
+      mediaUrl = first.file_url;
+      mediaType = first.file_type as 'image' | 'video';
+    }
+  }
+
+  const message = buildFacebookMessage(
+    (body.caption as string).trim(),
+    Array.isArray(body.hashtags) ? (body.hashtags as string[]) : [],
+  );
+
+  // Attempt to publish each facebook queue item
+  let fbPublishError: string | undefined;
+
+  for (const item of insertedQueueItems) {
+    if (item.platform !== 'facebook') continue;
+
+    if (!fbPageId || !fbAccessToken) {
+      const errMsg =
+        'FACEBOOK_PAGE_ID or FACEBOOK_PAGE_ACCESS_TOKEN is not configured on the server.';
+      await supabase
+        .from('scheduled_queue')
+        .update({ status: 'failed', error_message: errMsg, updated_at: new Date().toISOString() })
+        .eq('id', item.id);
+      fbPublishError = errMsg;
+      continue;
+    }
+
+    try {
+      const result = await publishToFacebook({
+        message,
+        mediaUrl,
+        mediaType,
+        pageId: fbPageId,
+        accessToken: fbAccessToken,
+      });
+
+      await supabase
+        .from('scheduled_queue')
+        .update({
+          status: 'published',
+          published_at: new Date().toISOString(),
+          metadata: { facebook_post_id: result.id },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', item.id);
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : 'Unknown error';
+      await supabase
+        .from('scheduled_queue')
+        .update({ status: 'failed', error_message: errMsg, updated_at: new Date().toISOString() })
+        .eq('id', item.id);
+      fbPublishError = errMsg;
+    }
+  }
+
+  // If Facebook publishing failed, mark the post as failed and return an error
+  if (fbPublishError) {
+    await supabase
+      .from('posts')
+      .update({ status: 'failed', updated_at: new Date().toISOString() })
+      .eq('id', post.id);
+
+    return NextResponse.json(
+      {
+        post: { ...post, status: 'failed' },
+        queue_items: insertedQueueItems,
+        error: `Failed to publish to Facebook: ${fbPublishError}`,
+      },
+      { status: 502 },
+    );
+  }
+
   return NextResponse.json(
-    {
-      post,
-      queue_items: (queueItems ?? []) as ScheduledQueueItem[],
-    },
+    { post, queue_items: insertedQueueItems, published: true },
     { status: 201 }
   );
 }
