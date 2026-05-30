@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Sparkles, Loader2, RefreshCw, Check, AlertCircle } from 'lucide-react'
 import type { Platform } from '@/types'
 
@@ -48,8 +48,25 @@ export default function AICaptionGenerator({
   const warnings = getPlatformWarnings(generatedCaption, platforms)
   const overLimit = captionLength > charLimit
 
+  // Clear platform-related errors when the platform selection changes
+  const prevPlatformCount = useRef(platforms.length)
+  useEffect(() => {
+    if (prevPlatformCount.current !== platforms.length) {
+      prevPlatformCount.current = platforms.length
+      if (state === 'error') {
+        setState('idle')
+        setErrorMessage('')
+      }
+    }
+  }, [platforms.length, state])
+
   async function generate() {
     if (!rawConcept.trim()) return
+    if (platforms.length === 0) {
+      setState('error')
+      setErrorMessage('Select at least one target platform before generating a caption.')
+      return
+    }
 
     setState('loading')
     setErrorMessage('')
@@ -110,15 +127,22 @@ export default function AICaptionGenerator({
         />
       </div>
 
+      {/* Platform hint */}
+      {platforms.length === 0 && (
+        <p className="text-xs text-amber-400">
+          Select at least one platform above to generate a caption.
+        </p>
+      )}
+
       {/* Generate button */}
       <button
         type="button"
         onClick={generate}
-        disabled={!rawConcept.trim() || state === 'loading'}
+        disabled={!rawConcept.trim() || state === 'loading' || platforms.length === 0}
         className={[
           'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800',
-          !rawConcept.trim() || state === 'loading'
+          !rawConcept.trim() || state === 'loading' || platforms.length === 0
             ? 'cursor-not-allowed bg-gray-700 text-gray-400'
             : 'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700',
         ].join(' ')}

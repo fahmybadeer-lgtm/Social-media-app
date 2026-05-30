@@ -164,9 +164,8 @@ export default function ComposerPage() {
         media_ids: form.selectedMediaId ? [form.selectedMediaId] : [],
         status: submitStatus,
         raw_concept: form.rawConcept || null,
-        metadata: form.scheduledAt
-          ? { scheduled_at: form.scheduledAt }
-          : {},
+        ...(form.scheduledAt ? { scheduled_at: form.scheduledAt } : {}),
+        metadata: {},
       }
 
       const res = await fetch('/api/posts', {

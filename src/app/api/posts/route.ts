@@ -203,8 +203,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // --- Create one scheduled_queue row per platform ---
   const platforms = body.platforms as string[];
+  // Default to now so the scheduled_queue NOT NULL constraint is always satisfied.
+  // For "Publish Now" the caller omits scheduled_at, meaning "immediately".
   const scheduledAt =
-    typeof body.scheduled_at === 'string' ? body.scheduled_at : undefined;
+    typeof body.scheduled_at === 'string' ? body.scheduled_at : now;
 
   // Map post status to a compatible queue status
   // 'published' and 'failed' are not initial queue states for new posts
@@ -224,7 +226,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     post_id: post.id,
     platform,
     status: queueStatus,
-    ...(scheduledAt ? { scheduled_at: scheduledAt } : {}),
+    scheduled_at: scheduledAt,
     retry_count: 0,
     metadata: {},
     created_at: now,
