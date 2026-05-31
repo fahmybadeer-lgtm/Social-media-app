@@ -13,6 +13,15 @@ export interface PublishToFacebookParams {
   accessToken: string;
 }
 
+async function getPageAccessToken(userToken: string, pageId: string): Promise<string> {
+  const res = await fetch(`${GRAPH_API_BASE}/me/accounts?access_token=${userToken}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  const page = data.data?.find((p: {id: string; access_token: string}) => p.id === pageId);
+  if (page) return page.access_token;
+  return userToken;
+}
+
 async function graphPost(
   endpoint: string,
   params: Record<string, string>,
@@ -43,17 +52,18 @@ async function graphPost(
   return { id };
 }
 
-/** Post text + optional image to a Facebook Page. */
 export async function publishToFacebook(
   params: PublishToFacebookParams,
 ): Promise<FacebookPostResult> {
   const { message, mediaUrl, mediaType, pageId, accessToken } = params;
+  
+  const pageToken = await getPageAccessToken(accessToken, pageId);
 
   if (mediaUrl && mediaType === 'image') {
     return graphPost(`${GRAPH_API_BASE}/${pageId}/photos`, {
       url: mediaUrl,
       caption: message,
-      access_token: accessToken,
+      access_token: pageToken,
     });
   }
 
@@ -61,17 +71,16 @@ export async function publishToFacebook(
     return graphPost(`${GRAPH_API_BASE}/${pageId}/videos`, {
       file_url: mediaUrl,
       description: message,
-      access_token: accessToken,
+      access_token: pageToken,
     });
   }
 
   return graphPost(`${GRAPH_API_BASE}/${pageId}/feed`, {
     message,
-    access_token: accessToken,
+    access_token: pageToken,
   });
 }
 
-/** Combines caption and hashtags into a single Facebook message string. */
 export function buildFacebookMessage(
   caption: string,
   hashtags: string[],
