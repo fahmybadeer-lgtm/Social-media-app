@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
-import { CheckCircle, XCircle, Loader2, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Share2 } from 'lucide-react';
 
 interface PlatformInfo {
   username: string | null;
@@ -17,7 +17,7 @@ const PLATFORMS = [
   {
     id: 'facebook',
     label: 'Facebook',
-    icon: <Facebook className="w-5 h-5" />,
+    icon: <Share2 className="w-5 h-5" />,
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/10 border-blue-500/30',
     connectUrl: '/api/auth/facebook',
@@ -26,7 +26,7 @@ const PLATFORMS = [
   {
     id: 'instagram',
     label: 'Instagram',
-    icon: <Instagram className="w-5 h-5" />,
+    icon: <Share2 className="w-5 h-5" />,
     color: 'text-pink-400',
     bgColor: 'bg-pink-500/10 border-pink-500/30',
     connectUrl: null, // coming soon
@@ -35,7 +35,7 @@ const PLATFORMS = [
   {
     id: 'tiktok',
     label: 'TikTok',
-    icon: <Youtube className="w-5 h-5" />,
+    icon: <Share2 className="w-5 h-5" />,
     color: 'text-red-400',
     bgColor: 'bg-red-500/10 border-red-500/30',
     connectUrl: null, // coming soon
@@ -44,7 +44,7 @@ const PLATFORMS = [
   {
     id: 'linkedin',
     label: 'LinkedIn',
-    icon: <Linkedin className="w-5 h-5" />,
+    icon: <Share2 className="w-5 h-5" />,
     color: 'text-sky-400',
     bgColor: 'bg-sky-500/10 border-sky-500/30',
     connectUrl: null, // coming soon
