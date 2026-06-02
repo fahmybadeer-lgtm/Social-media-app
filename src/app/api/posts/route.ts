@@ -3,17 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 import { publishToFacebook, buildFacebookMessage } from '@/lib/social/facebook';
 import type { Post, ScheduledQueueItem } from '@/types';
 
-// ---------------------------------------------------------------------------
-// GET /api/posts
-// Returns all posts for the authenticated user with their scheduled_queue
-// items joined. Supports optional ?status=draft|scheduled|published|failed
-// ---------------------------------------------------------------------------
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -39,15 +32,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   return NextResponse.json(data);
 }
 
-// ---------------------------------------------------------------------------
-// POST /api/posts
-// ---------------------------------------------------------------------------
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -107,19 +95,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   if (publish_now && platforms.includes('facebook')) {
+    // Read token from Supabase (not env vars)
+    const { data: tokenRow } = await supabase
+      .from('social_tokens')
+      .select('access_token')
+      .eq('user_id', user.id)
+      .eq('platform', 'facebook')
+      .eq('is_active', true)
+      .single();
+
     const pageId = process.env.FACEBOOK_PAGE_ID;
-    const accessToken = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+    const accessToken = tokenRow?.access_token;
 
     if (!pageId || !accessToken) {
       await supabase
         .from('scheduled_queue')
-        .update({ status: 'failed', error_message: 'Facebook credentials not configured' })
+        .update({ status: 'failed', error_message: 'Facebook not connected. Go to Settings to connect.' })
         .eq('post_id', post.id)
         .eq('platform', 'facebook');
 
       return NextResponse.json(
-        { error: 'Facebook credentials not configured' },
-        { status: 500 },
+        { error: 'Facebook not connected. Go to Settings to connect your page.' },
+        { status: 400 },
       );
     }
 
