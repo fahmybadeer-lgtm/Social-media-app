@@ -140,7 +140,7 @@ export default function SignupPage() {
               <p className="mt-2 text-sm text-gray-400">
                 We&apos;ve sent a confirmation link to{' '}
                 <span className="font-medium text-indigo-400">{email}</span>.
-                Click the link to confirm your account and start using SocialStudio.
+                Click the link to confirm your account and start using CNB CUT.
               </p>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function SignupPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-indigo-400 tracking-tight">
-              SocialStudio
+              CNB CUT
             </h1>
             <p className="mt-1 text-sm text-gray-400">
               Create your free account

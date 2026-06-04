@@ -124,7 +124,7 @@ export function SidebarNav() {
           <Sparkles className="w-4 h-4 text-black" />
         </div>
         <span className="text-base font-semibold text-white tracking-tight">
-          SocialFlow
+          CNB CUT
         </span>
       </div>
 

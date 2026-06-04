@@ -120,7 +120,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-indigo-400 tracking-tight">
-              SocialStudio
+              CNB CUT
             </h1>
             <p className="mt-1 text-sm text-gray-400">
               Sign in to your account

@@ -64,7 +64,7 @@ export default async function HomePage() {
               <Zap className="w-4 h-4 text-white fill-white" />
             </div>
             <span className="text-lg font-bold text-indigo-400 tracking-tight">
-              SocialStudio
+              CNB CUT
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -209,7 +209,7 @@ export default async function HomePage() {
             <span className="text-sm font-semibold text-indigo-400">CNB CUT</span>
           </div>
           <p className="text-xs text-gray-600">
-            &copy; {new Date().getFullYear()} SocialStudio. All rights reserved.
+            &copy; {new Date().getFullYear()} CNB CUT. All rights reserved.
           </p>
         </div>
       </footer>

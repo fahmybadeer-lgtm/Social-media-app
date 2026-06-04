@@ -8,7 +8,7 @@ import { MediaLibraryGrid } from '@/components/media/MediaLibraryGrid';
 // ---------------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Media Library | SocialFlow',
+  title: 'Media Library | CNB CUT',
   description: 'Upload and manage your images and videos for social media posts.',
 };
 
