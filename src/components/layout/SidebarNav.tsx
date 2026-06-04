@@ -35,7 +35,7 @@ export default function SidebarNav() {
       <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-800">
         <div className="relative h-10 w-10 flex-shrink-0">
           <img
-            src="/cnbcut-logo.png"
+            src="/eec9e9e4-6621-4e0d-a426-d45129c8fb14.JPG"
             alt="CNB CUT"
             className="h-10 w-10 rounded-lg object-cover"
             onError={(e) => {
