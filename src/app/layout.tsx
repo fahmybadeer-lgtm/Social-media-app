@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'SocialStudio - Social Media Manager',
+  title: 'CNB CUT - Social Media Manager',
   description:
     'Create, schedule, and manage your social media posts across all platforms from one place.',
 }

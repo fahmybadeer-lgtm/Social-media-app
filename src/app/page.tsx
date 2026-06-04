@@ -104,13 +104,13 @@ export default async function HomePage() {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-600/10 px-4 py-1.5">
             <Zap className="w-3.5 h-3.5 text-indigo-400 fill-indigo-400" />
             <span className="text-xs font-medium text-indigo-300">
-              Your all-in-one social media studio
+              CNB CUT Barbershop Social Media Manager
             </span>
           </div>
 
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-6xl leading-tight">
             Welcome to{' '}
-            <span className="text-indigo-400">SocialStudio</span>
+            <span className="text-indigo-400">CNB CUT</span>
           </h1>
 
           <p className="mt-6 text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
@@ -206,7 +206,7 @@ export default async function HomePage() {
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-600">
               <Zap className="w-3 h-3 text-white fill-white" />
             </div>
-            <span className="text-sm font-semibold text-indigo-400">SocialStudio</span>
+            <span className="text-sm font-semibold text-indigo-400">CNB CUT</span>
           </div>
           <p className="text-xs text-gray-600">
             &copy; {new Date().getFullYear()} SocialStudio. All rights reserved.
