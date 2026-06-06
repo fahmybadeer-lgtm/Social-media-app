@@ -71,8 +71,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (queueError) return NextResponse.json({ error: queueError.message }, { status: 500 });
   }
 
-  if (publish_now && platforms.includes('facebook')) {
-    let mediaUrl: string | undefined;
+const pageId = process.env.FACEBOOK_PAGE_ID;
+const accessToken = process.env.FACEBOOK_PAGE_ACCESS_TOKEN ?? tokenRow?.access_token;
     let mediaType: 'image' | 'video' | undefined;
 
     if (media_ids.length > 0) {
