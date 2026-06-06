@@ -13,7 +13,8 @@ export interface PublishToFacebookParams {
   accessToken: string;
 }
 
-async function getPageAccessToken(userToken: string, pageId: string): Promise<string> {
+async function getPageAccessToken(userToken: string, pageId: string): Promise<string> {const envPageToken = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+if (envPageToken) return envPageToken;
   const res = await fetch(`${GRAPH_API_BASE}/me/accounts?access_token=${userToken}`);
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);
