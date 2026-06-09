@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   title: 'CNB CUT - Social Media Manager',
   description:
     'Create, schedule, and manage your social media posts across all platforms from one place.',
+    icons: {
+          apple: '/apple-touch-icon.png',
+          icon: '/icon-512.png',
+    },
 }
 
 export default function RootLayout({
