@@ -85,7 +85,7 @@ function Toast({
         className="text-current/60 hover:text-current transition-colors ml-1"
         aria-label="Dismiss"
       >
-        Ã
+        ÃÂ
       </button>
     </div>
   )
@@ -113,7 +113,7 @@ export default function ComposerPage() {
   // Redirect to media library if media loading is done and library is empty
   useEffect(() => {
     if (!mediaLoading && media.length === 0) {
-      // We don't force redirect â we show inline empty state instead
+      // We don't force redirect Ã¢ÂÂ we show inline empty state instead
       // If you want hard redirect, uncomment:
       // router.push('/media-library')
     }
@@ -242,7 +242,7 @@ export default function ComposerPage() {
           <div className="flex flex-col lg:flex-row gap-6">
 
             {/* ----------------------------------------------------------------
-                Left column â composer form (60%)
+                Left column Ã¢ÂÂ composer form (60%)
             ---------------------------------------------------------------- */}
             <div className="flex-1 lg:max-w-[60%] space-y-5">
 
@@ -267,7 +267,7 @@ export default function ComposerPage() {
                 {mediaLoading ? (
                   <div className="flex items-center gap-2 py-6 justify-center text-gray-500">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Loading media libraryâ¦</span>
+                    <span className="text-sm">Loading media libraryÃ¢ÂÂ¦</span>
                   </div>
                 ) : (
                   <MediaSelector
@@ -303,7 +303,7 @@ export default function ComposerPage() {
                   value={form.caption}
                   onChange={(e) => patch('caption', e.target.value)}
                   rows={5}
-                  placeholder="Write your caption here, or use the AI generator belowâ¦"
+                  placeholder="Write your caption here, or use the AI generator belowÃ¢ÂÂ¦"
                   className={[
                     'w-full resize-none rounded-lg border bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none transition-colors',
                     captionOverLimit ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-indigo-500',
@@ -321,6 +321,7 @@ export default function ComposerPage() {
                 <AICaptionGenerator
                   onCaptionGenerated={(caption) => patch('caption', caption)}
                   platforms={form.platforms}
+                  selectedMedia={selectedMedia}
                 />
               </div>
 
@@ -412,7 +413,7 @@ export default function ComposerPage() {
             </div>
 
             {/* ----------------------------------------------------------------
-                Right column â live preview (40%)
+                Right column Ã¢ÂÂ live preview (40%)
             ---------------------------------------------------------------- */}
             <div className="lg:w-[40%] lg:max-w-[40%]">
               <div className="lg:sticky lg:top-6">
