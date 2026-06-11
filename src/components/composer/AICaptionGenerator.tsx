@@ -41,6 +41,18 @@ export default function AICaptionGenerator({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMedia?.id])
 
+  // Also auto-generate when platforms are first selected and image is already picked
+  const prevPlatformCount = useRef(0)
+  useEffect(() => {
+    const wasEmpty = prevPlatformCount.current === 0
+    const nowHas = platforms.length > 0
+    prevPlatformCount.current = platforms.length
+    if (wasEmpty && nowHas && selectedMedia?.id && state === 'idle') {
+      generate(false)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platforms.length])
+
   async function generate(isRegenerate = false) {
     if (!selectedMedia && !extraContext.trim()) return
     if (platforms.length === 0) {
@@ -159,24 +171,20 @@ export default function AICaptionGenerator({
         <p className="text-xs text-amber-400">Select at least one platform above to generate a caption.</p>
       )}
 
-      {/* Manual generate button — only when no image */}
-      {!selectedMedia && (
+      {/* Generate button — always show when idle (image selected or not) */}
+      {state === 'idle' && (
         <button
           type="button"
           onClick={() => generate(false)}
-          disabled={!canGenerate || state === 'loading'}
+          disabled={!canGenerate}
           className={[
             'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all',
-            !canGenerate || state === 'loading'
+            !canGenerate
               ? 'cursor-not-allowed bg-gray-700 text-gray-400'
               : 'bg-indigo-600 text-white hover:bg-indigo-500',
           ].join(' ')}
         >
-          {state === 'loading' ? (
-            <><Loader2 className="w-4 h-4 animate-spin" />Generating…</>
-          ) : (
-            <><Sparkles className="w-4 h-4" />Generate Caption</>
-          )}
+          <Sparkles className="w-4 h-4" />Generate Caption
         </button>
       )}
 
