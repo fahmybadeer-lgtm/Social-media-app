@@ -264,9 +264,9 @@ export default function AICaptionGenerator({
               </button>
             )}
 
-            <button type="button" onClick={() => generate(true)} disabled={state === 'loading'}
+            <button type="button" onClick={() => generate(true)} disabled={state as string === 'loading'}
               className="flex items-center gap-1.5 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-400 hover:border-gray-600 hover:text-gray-200 transition-colors disabled:opacity-50" title="Regenerate">
-              <RefreshCw className={`w-4 h-4 ${state === 'loading' ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${state as string === 'loading' ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>

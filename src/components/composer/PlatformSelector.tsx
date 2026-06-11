@@ -91,4 +91,84 @@ const PLATFORMS: PlatformMeta[] = [
     nameColor: 'text-white',
     badgeBg: 'bg-white/10',
     badgeText: 'text-gray-200',
-    icon: <TikTokIcon className="w
+    icon: <TikTokIcon className="w-7 h-7 text-white" />,
+  },
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    tagline: 'Connect professionally',
+    borderColor: 'border-blue-400',
+    ringColor: 'ring-blue-400',
+    nameColor: 'text-blue-300',
+    badgeBg: 'bg-blue-400/20',
+    badgeText: 'text-blue-200',
+    icon: <LinkedInIcon className="w-7 h-7 text-blue-300" />,
+  },
+]
+
+export default function PlatformSelector({ selectedPlatforms, onChange }: PlatformSelectorProps) {
+  const allSelected = PLATFORMS.every((p) => selectedPlatforms.includes(p.id))
+
+  function togglePlatform(id: Platform) {
+    if (selectedPlatforms.includes(id)) {
+      onChange(selectedPlatforms.filter((p) => p !== id))
+    } else {
+      onChange([...selectedPlatforms, id])
+    }
+  }
+
+  function selectAll() {
+    onChange(PLATFORMS.map((p) => p.id))
+  }
+
+  function clearAll() {
+    onChange([])
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-white">Platforms</h3>
+        <button
+          type="button"
+          onClick={allSelected ? clearAll : selectAll}
+          className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+        >
+          {allSelected ? 'Clear All' : 'Select All'}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {PLATFORMS.map((platform) => {
+          const isSelected = selectedPlatforms.includes(platform.id)
+          return (
+            <button
+              key={platform.id}
+              type="button"
+              onClick={() => togglePlatform(platform.id)}
+              className={[
+                'relative flex items-center gap-3 rounded-xl border-2 bg-gray-900 p-3 text-left transition-all',
+                isSelected
+                  ? `${platform.borderColor} ring-1 ${platform.ringColor}`
+                  : 'border-gray-700 hover:border-gray-600',
+              ].join(' ')}
+            >
+              {platform.icon}
+              <div className="min-w-0">
+                <p className={`text-sm font-semibold leading-tight ${isSelected ? platform.nameColor : 'text-gray-300'}`}>
+                  {platform.name}
+                </p>
+                <p className="text-xs text-gray-500 leading-tight truncate">{platform.tagline}</p>
+              </div>
+              {isSelected && (
+                <span className={`absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full ${platform.badgeBg}`}>
+                  <Check className={`w-2.5 h-2.5 ${platform.badgeText}`} />
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
