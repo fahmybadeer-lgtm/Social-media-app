@@ -72,6 +72,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const meData = await meRes.json();
 
   // Step 5 — save to Supabase social_tokens
+  // access_token = Page Access Token (for Facebook posting)
+  // refresh_token = Long-lived User Token (for Instagram posting)
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -88,7 +90,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       refresh_token: longLivedUserToken,
       platform_user_id: meData.id ?? null,
       platform_username: page.name ?? meData.name ?? null,
-      scope: 'pages_show_list,pages_read_engagement,pages_manage_posts',
+      scope: 'pages_show_list,pages_read_engagement,pages_manage_posts,instagram_content_publish',
       is_active: true,
     }, { onConflict: 'user_id,platform' });
 
