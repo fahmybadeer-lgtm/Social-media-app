@@ -25,30 +25,29 @@ async function createMediaContainer(
   });
   const data = await res.json();
   if (!res.ok || data.error) {
-    throw new Error(data.error?.message ?? `Instagram API error ${res.status}`);
+    throw new Error(data.error?.message ?? `Instagram container error ${res.status}: ${JSON.stringify(data)}`);
   }
   if (!data.id) throw new Error('Instagram API returned no container ID');
   return data.id as string;
 }
 
-async function waitForContainer(
+async function waitForVideoContainer(
   containerId: string,
   accessToken: string,
-  maxAttempts = 15,
+  maxAttempts = 8,
 ): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
-    await new Promise((r) => setTimeout(r, 3000));
+    await new Promise((r) => setTimeout(r, 1000));
     const res = await fetch(
       `${GRAPH_API_BASE}/${containerId}?fields=status_code,status&access_token=${accessToken}`,
     );
     const data = await res.json();
     if (data.status_code === 'FINISHED') return;
     if (data.status_code === 'ERROR') {
-      throw new Error(`Instagram media processing failed: ${data.status ?? 'unknown error'}`);
+      throw new Error(`Instagram video processing failed: ${data.status ?? 'unknown error'}`);
     }
-    // IN_PROGRESS or PUBLISHED — keep waiting
   }
-  throw new Error('Instagram media processing timed out after 45 seconds.');
+  throw new Error('Instagram video processing timed out.');
 }
 
 async function publishContainer(
@@ -63,7 +62,7 @@ async function publishContainer(
   });
   const data = await res.json();
   if (!res.ok || data.error) {
-    throw new Error(data.error?.message ?? `Instagram publish error ${res.status}`);
+    throw new Error(data.error?.message ?? `Instagram publish error ${res.status}: ${JSON.stringify(data)}`);
   }
   if (!data.id) throw new Error('Instagram API returned no post ID');
   return { id: data.id as string };
@@ -74,25 +73,23 @@ export async function publishToInstagram(
 ): Promise<InstagramPostResult> {
   const { caption, mediaUrl, mediaType, igUserId, accessToken } = params;
 
-  let containerId: string;
-
   if (mediaType === 'video') {
-    containerId = await createMediaContainer(
+    const containerId = await createMediaContainer(
       igUserId,
       { video_url: mediaUrl, caption, media_type: 'REELS' },
       accessToken,
     );
-  } else {
-    containerId = await createMediaContainer(
-      igUserId,
-      { image_url: mediaUrl, caption },
-      accessToken,
-    );
+    await waitForVideoContainer(containerId, accessToken);
+    return publishContainer(igUserId, containerId, accessToken);
   }
 
-  // Wait for Instagram to finish processing the media before publishing
-  await waitForContainer(containerId, accessToken);
-
+  // For images: create container then publish immediately
+  // Instagram processes images synchronously during container creation
+  const containerId = await createMediaContainer(
+    igUserId,
+    { image_url: mediaUrl, caption },
+    accessToken,
+  );
   return publishContainer(igUserId, containerId, accessToken);
 }
 
