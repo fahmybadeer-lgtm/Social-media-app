@@ -42,6 +42,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const status = publish_now ? 'processing' : requestedStatus;
 
+  // Insert post record
   const { data: post, error: postError } = await supabase
     .from('posts')
     .insert({
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: postError?.message ?? 'Failed to create post' }, { status: 500 });
   }
 
+  // Insert queue items
   const queueItems = platforms.map((platform: string) => ({
     post_id: post.id,
     platform,
@@ -72,9 +74,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (queueError) return NextResponse.json({ error: queueError.message }, { status: 500 });
   }
 
-  if (!publish_now) return NextResponse.json(post);
+  // If not publishing now, return draft/scheduled post
+  if (!publish_now) {
+    return NextResponse.json(post);
+  }
 
-  // Fetch media info
+  // --- Publishing flow ---
+
+  // 1. Resolve media URL
   let mediaUrl: string | undefined;
   let mediaType: 'image' | 'video' | undefined;
   if (media_ids.length > 0) {
@@ -89,9 +96,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  // Fetch tokens from Supabase
-  // access_token = Page Access Token (used for Facebook)
-  // refresh_token = Long-lived User Access Token (used for Instagram)
+  // 2. Fetch stored Facebook/Instagram tokens from Supabase
   const { data: tokenRow } = await supabase
     .from('social_tokens')
     .select('access_token, refresh_token')
@@ -100,51 +105,55 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .eq('is_active', true)
     .single();
 
+  // Page Access Token for Facebook
   const pageAccessToken = tokenRow?.access_token ?? process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
-  // Instagram requires a User Access Token, not a Page Access Token
+  // User Access Token for Instagram (stored in refresh_token column)
   const userAccessToken = tokenRow?.refresh_token ?? tokenRow?.access_token ?? process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
-  const pageId = process.env.FACEBOOK_PAGE_ID;
 
   const results: Record<string, unknown> = {};
+  let anySuccess = false;
+  let lastError: string | null = null;
 
-  // --- Facebook ---
+  // 3. Facebook
   if (platforms.includes('facebook')) {
+    const pageId = process.env.FACEBOOK_PAGE_ID;
     if (!pageId || !pageAccessToken) {
       await supabase.from('scheduled_queue')
-        .update({ status: 'failed', error_message: 'Facebook not connected. Go to Settings.' })
+        .update({ status: 'failed', error_message: 'Facebook not connected' })
         .eq('post_id', post.id).eq('platform', 'facebook');
-      results.facebook = { success: false, error: 'Facebook not connected' };
+      lastError = 'Facebook not connected. Go to Settings to connect your page.';
     } else {
       try {
-        const message = buildFacebookMessage(caption, hashtags);
+        const message = buildFacebookMessage(caption ?? '', hashtags);
         const result = await publishToFacebook({ message, mediaUrl, mediaType, pageId, accessToken: pageAccessToken });
         await supabase.from('scheduled_queue')
           .update({ status: 'published', metadata: { facebook_post_id: result.id } })
           .eq('post_id', post.id).eq('platform', 'facebook');
-        results.facebook = { success: true, post_id: result.id };
+        results.facebook = result;
+        anySuccess = true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
         await supabase.from('scheduled_queue')
           .update({ status: 'failed', error_message: msg })
           .eq('post_id', post.id).eq('platform', 'facebook');
-        results.facebook = { success: false, error: msg };
+        lastError = msg;
       }
     }
   }
 
-  // --- Instagram ---
+  // 4. Instagram
   if (platforms.includes('instagram')) {
     const igUserId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
     if (!igUserId || !userAccessToken) {
       await supabase.from('scheduled_queue')
-        .update({ status: 'failed', error_message: 'Instagram not connected. Go to Settings.' })
+        .update({ status: 'failed', error_message: 'Instagram not connected. Connect Facebook in Settings.' })
         .eq('post_id', post.id).eq('platform', 'instagram');
-      results.instagram = { success: false, error: 'Instagram not connected' };
+      lastError = 'Instagram not connected. Connect Facebook in Settings.';
     } else if (!mediaUrl) {
       await supabase.from('scheduled_queue')
-        .update({ status: 'failed', error_message: 'Instagram requires a photo or video.' })
+        .update({ status: 'failed', error_message: 'Instagram requires an image.' })
         .eq('post_id', post.id).eq('platform', 'instagram');
-      results.instagram = { success: false, error: 'Instagram requires a photo or video' };
+      lastError = 'Instagram requires an image. Please select a photo before posting.';
     } else {
       try {
         const igCaption = buildInstagramCaption(caption ?? '', hashtags);
@@ -158,20 +167,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         await supabase.from('scheduled_queue')
           .update({ status: 'published', metadata: { instagram_post_id: result.id } })
           .eq('post_id', post.id).eq('platform', 'instagram');
-        results.instagram = { success: true, post_id: result.id };
+        results.instagram = result;
+        anySuccess = true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unknown error';
         await supabase.from('scheduled_queue')
           .update({ status: 'failed', error_message: msg })
           .eq('post_id', post.id).eq('platform', 'instagram');
-        results.instagram = { success: false, error: msg };
+        lastError = msg;
       }
     }
   }
 
-  const anySuccess = Object.values(results).some((r: unknown) => (r as Record<string, unknown>)?.success === true);
+  // 5. Update post final status
   const finalStatus = anySuccess ? 'published' : 'failed';
   await supabase.from('posts').update({ status: finalStatus }).eq('id', post.id);
 
-  return NextResponse.json({ ...post, status: finalStatus, results });
+  if (!anySuccess && lastError) {
+    return NextResponse.json({ error: lastError }, { status: 502 });
+  }
+
+  return NextResponse.json({ ...post, status: finalStatus, ...results });
 }
