@@ -10,24 +10,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const appId = process.env.FACEBOOK_APP_ID;
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/facebook/callback`;
+  const appSecret = process.env.FACEBOOK_APP_SECRET;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const redirectUri = `${appUrl}/api/auth/facebook/callback`;
 
   const scopes = [
     'pages_show_list',
     'pages_read_engagement',
     'pages_manage_posts',
-    
+    'instagram_basic',
     'instagram_content_publish',
   ].join(',');
 
-  const state = Buffer.from(JSON.stringify({ userId: user.id })).toString('base64');
+  const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
 
-  const url = new URL('https://www.facebook.com/v20.0/dialog/oauth');
-  url.searchParams.set('client_id', appId!);
-  url.searchParams.set('redirect_uri', redirectUri);
-  url.searchParams.set('scope', scopes);
-  url.searchParams.set('state', state);
-  url.searchParams.set('response_type', 'code');
-
-  return NextResponse.redirect(url.toString());
+  return NextResponse.redirect(authUrl);
 }
