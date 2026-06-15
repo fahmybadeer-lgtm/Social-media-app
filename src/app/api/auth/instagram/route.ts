@@ -27,10 +27,10 @@ export async function GET() {
     const userAccessToken = fbToken.refresh_token ?? fbToken.access_token;
 
   const igRes = await fetch(
-        `${GRAPH_API}/${pageId}?fields=connected_instagram_account&access_token=${pageAccessToken}`
+        `${GRAPH_API}/${pageId}?fields=instagram_business_account&access_token=${pageAccessToken}`
       );
     const igData = await igRes.json();
-    const igAccountId = igData.connected_instagram_account?.id;
+    const igAccountId = igData.instagram_business_account?.id;
 
   if (!igAccountId) {
         return NextResponse.redirect(`${appUrl}/settings?error=instagram_not_found`);
