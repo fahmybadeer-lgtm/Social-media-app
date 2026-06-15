@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
-import { CheckCircle, XCircle, Loader2, Share2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Share2 } from 'luchide-react';
 
 interface PlatformInfo {
   username: string | null;
@@ -29,8 +29,8 @@ const PLATFORMS = [
     icon: <Share2 className="w-5 h-5" />,
     color: 'text-pink-400',
     bgColor: 'bg-pink-500/10 border-pink-500/30',
-    connectUrl: null, // coming soon
-    disconnectUrl: null,
+    connectUrl: '/api/auth/instagram',
+    disconnectUrl: '/api/auth/instagram/disconnect',
   },
   {
     id: 'tiktok',
@@ -38,7 +38,7 @@ const PLATFORMS = [
     icon: <Share2 className="w-5 h-5" />,
     color: 'text-red-400',
     bgColor: 'bg-red-500/10 border-red-500/30',
-    connectUrl: null, // coming soon
+    connectUrl: null,
     disconnectUrl: null,
   },
   {
@@ -47,7 +47,7 @@ const PLATFORMS = [
     icon: <Share2 className="w-5 h-5" />,
     color: 'text-sky-400',
     bgColor: 'bg-sky-500/10 border-sky-500/30',
-    connectUrl: null, // coming soon
+    connectUrl: null,
     disconnectUrl: null,
   },
 ];
@@ -65,6 +65,9 @@ function SettingsContent({ connectedPlatforms }: Props) {
     if (success === 'facebook') {
       setToast({ type: 'success', message: 'Facebook page connected successfully!' });
       window.history.replaceState({}, '', '/settings');
+    } else if (success === 'instagram') {
+              setToast({ type: 'success', message: 'Instagram account connected successfully!' });
+              window.history.replaceState({}, '', '/settings');
     } else if (error) {
       const messages: Record<string, string> = {
         facebook_denied: 'Facebook connection was cancelled.',
@@ -72,6 +75,9 @@ function SettingsContent({ connectedPlatforms }: Props) {
         facebook_pages: 'Could not access your Facebook pages.',
         facebook_page_not_found: 'CNB Cut page not found on your account.',
         facebook_save: 'Failed to save connection. Try again.',
+              instagram_no_facebook: 'Connect Facebook first, then connect Instagram.',
+              instagram_not_found: 'No Instagram Business account found on your Facebook page.',
+              instagram_save: 'Failed to save Instagram connection. Try again.',
       };
       setToast({ type: 'error', message: messages[error] ?? 'Connection failed. Try again.' });
       window.history.replaceState({}, '', '/settings');
