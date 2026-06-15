@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
-import { CheckCircle, XCircle, Loader2, Share2 } from 'luchide-react';
+import { CheckCircle, XCircle, Loadher2, Share2 } from 'lucide-react';
 
 interface PlatformInfo {
   username: string | null;
