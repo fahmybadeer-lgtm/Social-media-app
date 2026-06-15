@@ -16,7 +16,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     'pages_show_list',
     'pages_read_engagement',
     'pages_manage_posts',
-    'business_management',
+    
     'instagram_content_publish',
   ].join(',');
 
