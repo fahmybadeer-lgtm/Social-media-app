@@ -10,6 +10,7 @@ export async function GET() {
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
 
+    // Get the Facebook token stored during Facebook connect
     const { data: fbToken } = await supabase
         .from('social_tokens')
         .select('access_token, refresh_token')
@@ -22,23 +23,17 @@ export async function GET() {
         return NextResponse.redirect(`${appUrl}/settings?error=instagram_no_facebook`);
     }
 
-    const pageId = process.env.FACEBOOK_PAGE_ID!;
-    const pageAccessToken = fbToken.access_token;
-    const userAccessToken = fbToken.refresh_token ?? fbToken.access_token;
-
-    // Try both instagram_business_account (professional) and connected_instagram_account (personal/linked)
-    const igRes = await fetch(
-        `${GRAPH_API}/${pageId}?fields=instagram_business_account,connected_instagram_account&access_token=${pageAccessToken}`
-    );
-    const igData = await igRes.json();
-    const igAccountId =
-        igData.instagram_business_account?.id ??
-        igData.connected_instagram_account?.id;
+    // Use the known Instagram Business Account ID from env vars
+    // This bypasses the need to discover it through the Facebook Page API
+    const igAccountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
 
     if (!igAccountId) {
         return NextResponse.redirect(`${appUrl}/settings?error=instagram_not_found`);
     }
 
+    const userAccessToken = fbToken.refresh_token ?? fbToken.access_token;
+
+    // Get the Instagram username
     const igUserRes = await fetch(
         `${GRAPH_API}/${igAccountId}?fields=username&access_token=${userAccessToken}`
     );
@@ -49,7 +44,7 @@ export async function GET() {
         platform: 'instagram',
         access_token: userAccessToken,
         platform_user_id: igAccountId,
-        platform_username: igUserData.username ?? null,
+        platform_username: igUserData.username ?? 'cnbcut',
         scope: 'instagram_content_publish',
         is_active: true,
     }, { onConflict: 'user_id,platform' });
