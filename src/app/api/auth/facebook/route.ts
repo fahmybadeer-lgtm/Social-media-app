@@ -20,6 +20,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     'pages_manage_posts',
     'instagram_basic',
     'instagram_content_publish',
+    'business_management',
   ].join(',');
 
   const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
