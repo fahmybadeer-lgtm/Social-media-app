@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { publishToFacebook, buildFacebookMessage } from '@/lib/social/facebook';
 import { publishToInstagram, buildInstagramCaption } from '@/lib/social/instagram';
+import { publishToTikTok, buildTikTokCaption } from '@/lib/social/tiktok';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const supabase = await createClient();
@@ -110,6 +111,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const igUserId = igTokenRow?.platform_user_id ?? process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
     const igAccessToken = igTokenRow?.access_token ?? tokenRow?.refresh_token ?? tokenRow?.access_token;
 
+  const { data: ttTokenRow } = await supabase
+      .from('social_tokens')
+      .select('access_token')
+      .eq('user_id', user.id)
+      .eq('platform', 'tiktok')
+      .eq('is_active', true)
+      .single();
+
+
+
   const results: Record<string, unknown> = {};
     let anySuccess = false;
     let lastError: string | null = null;
@@ -171,6 +182,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                           await supabase.from('scheduled_queue')
                             .update({ status: 'failed', error_message: msg })
                             .eq('post_id', post.id).eq('platform', 'instagram');
+                          lastError = msg;
+                }
+        }
+  }
+
+
+  if (platforms.includes('tiktok')) {
+        const ttToken = ttTokenRow?.access_token;
+        if (!ttToken) {
+                await supabase.from('scheduled_queue')
+                  .update({ status: 'failed', error_message: 'TikTok not connected. Go to Settings to connect TikTok.' })
+                  .eq('post_id', post.id).eq('platform', 'tiktok');
+                lastError = 'TikTok not connected. Go to Settings to connect TikTok.';
+        } else if (!mediaUrl) {
+                await supabase.from('scheduled_queue')
+                  .update({ status: 'failed', error_message: 'TikTok requires a photo or video.' })
+                  .eq('post_id', post.id).eq('platform', 'tiktok');
+                lastError = 'TikTok requires a photo or video. Please select media before posting.';
+        } else {
+                try {
+                          const ttCaption = buildTikTokCaption(caption ?? '', hashtags);
+                          const result = await publishToTikTok({
+                                      caption: ttCaption,
+                                      mediaUrl,
+                                      mediaType: mediaType ?? 'video',
+                                      accessToken: ttToken,
+                          });
+                          await supabase.from('scheduled_queue')
+                            .update({ status: 'published', metadata: { tiktok_publish_id: result.publish_id } })
+                            .eq('post_id', post.id).eq('platform', 'tiktok');
+                          results.tiktok = result;
+                          anySuccess = true;
+                } catch (err) {
+                          const msg = err instanceof Error ? err.message : 'Unknown error';
+                          await supabase.from('scheduled_queue')
+                            .update({ status: 'failed', error_message: msg })
+                            .eq('post_id', post.id).eq('platform', 'tiktok');
                           lastError = msg;
                 }
         }
