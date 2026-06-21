@@ -19,6 +19,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_denied`);
   }
 
+  const codeVerifier = request.cookies.get('tiktok_code_verifier')?.value;
+  if (!codeVerifier) {
+    console.error('TikTok: missing code_verifier cookie');
+    return NextResponse.redirect(`${appUrl}/settings?error=tiktok_token`);
+  }
+
   const clientKey = process.env.TIKTOK_CLIENT_KEY!;
   const clientSecret = process.env.TIKTOK_CLIENT_SECRET!;
   const redirectUri = `${appUrl}/api/auth/tiktok/callback`;
@@ -32,13 +38,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       code,
       grant_type: 'authorization_code',
       redirect_uri: redirectUri,
+      code_verifier: codeVerifier,
     }),
   });
 
   const tokenData = await tokenRes.json();
 
   if (!tokenData.access_token) {
-    console.error('TikTok token error:', tokenData);
+    console.error('TikTok token error:', JSON.stringify(tokenData));
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_token`);
   }
 
@@ -73,5 +80,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_save`);
   }
 
-  return NextResponse.redirect(`${appUrl}/settings?success=tiktok`);
+  const res = NextResponse.redirect(`${appUrl}/settings?success=tiktok`);
+  res.cookies.delete('tiktok_code_verifier');
+  return res;
 }
