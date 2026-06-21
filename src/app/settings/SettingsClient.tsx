@@ -38,8 +38,8 @@ const PLATFORMS = [
     icon: <Share2 className="w-5 h-5" />,
     color: 'text-red-400',
     bgColor: 'bg-red-500/10 border-red-500/30',
-    connectUrl: null,
-    disconnectUrl: null,
+    connectUrl: '/api/auth/tiktok',
+    disconnectUrl: '/api/auth/tiktok/disconnect',
   },
   {
     id: 'linkedin',
@@ -47,7 +47,7 @@ const PLATFORMS = [
     icon: <Share2 className="w-5 h-5" />,
     color: 'text-sky-400',
     bgColor: 'bg-sky-500/10 border-sky-500/30',
-    connectUrl: null,
+    connectUrl: null, // coming soon
     disconnectUrl: null,
   },
 ];
@@ -66,8 +66,11 @@ function SettingsContent({ connectedPlatforms }: Props) {
       setToast({ type: 'success', message: 'Facebook page connected successfully!' });
       window.history.replaceState({}, '', '/settings');
     } else if (success === 'instagram') {
-              setToast({ type: 'success', message: 'Instagram account connected successfully!' });
-              window.history.replaceState({}, '', '/settings');
+      setToast({ type: 'success', message: 'Instagram account connected successfully!' });
+      window.history.replaceState({}, '', '/settings');
+    } else if (success === 'tiktok') {
+      setToast({ type: 'success', message: 'TikTok account connected successfully!' });
+      window.history.replaceState({}, '', '/settings');
     } else if (error) {
       const messages: Record<string, string> = {
         facebook_denied: 'Facebook connection was cancelled.',
@@ -75,9 +78,13 @@ function SettingsContent({ connectedPlatforms }: Props) {
         facebook_pages: 'Could not access your Facebook pages.',
         facebook_page_not_found: 'CNB Cut page not found on your account.',
         facebook_save: 'Failed to save connection. Try again.',
-              instagram_no_facebook: 'Connect Facebook first, then connect Instagram.',
-              instagram_not_found: 'No Instagram Business account found on your Facebook page.',
-              instagram_save: 'Failed to save Instagram connection. Try again.',
+        instagram_no_facebook: 'Connect Facebook first, then connect Instagram.',
+        instagram_not_found: 'No Instagram Business account found on your Facebook page. Make sure your Instagram is linked to your CNB CUT Facebook page.',
+        instagram_save: 'Failed to save Instagram connection. Try again.',
+        tiktok_unauthorized: 'You must be logged in to connect TikTok.',
+        tiktok_denied: 'TikTok connection was cancelled.',
+        tiktok_token: 'Failed to get TikTok token. Try again.',
+        tiktok_save: 'Failed to save TikTok connection. Try again.',
       };
       setToast({ type: 'error', message: messages[error] ?? 'Connection failed. Try again.' });
       window.history.replaceState({}, '', '/settings');
