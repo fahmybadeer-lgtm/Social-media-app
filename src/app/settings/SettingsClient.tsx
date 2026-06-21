@@ -86,7 +86,9 @@ function SettingsContent({ connectedPlatforms }: Props) {
         tiktok_token: 'Failed to get TikTok token. Try again.',
         tiktok_save: 'Failed to save TikTok connection. Try again.',
       };
-      setToast({ type: 'error', message: messages[error] ?? 'Connection failed. Try again.' });
+      const detail = searchParams.get('detail');
+      const baseMessage = messages[error] ?? 'Connection failed. Try again.';
+      setToast({ type: 'error', message: detail ? `${baseMessage} (${decodeURIComponent(detail)})` : baseMessage });
       window.history.replaceState({}, '', '/settings');
     }
   }, [searchParams]);

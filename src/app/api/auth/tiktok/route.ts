@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
 function generateCodeVerifier(): string {
@@ -26,6 +25,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = generateCodeChallenge(codeVerifier);
 
+  // Store code_verifier in Supabase — no cookies, no cross-site issues
+  await supabase
+    .from('social_tokens')
+    .upsert(
+      {
+        user_id: user.id,
+        platform: 'tiktok_pkce',
+        access_token: codeVerifier,
+        is_active: false,
+      },
+      { onConflict: 'user_id,platform' }
+    );
+
   const scopes = encodeURIComponent('user.info.basic,video.publish,video.upload');
 
   const authUrl =
@@ -38,14 +50,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     `&code_challenge=${codeChallenge}` +
     `&code_challenge_method=S256`;
 
-  const response = NextResponse.redirect(authUrl);
-  response.cookies.set('tiktok_code_verifier', codeVerifier, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    maxAge: 600,
-    path: '/',
-  });
-
-  return response;
+  return NextResponse.redirect(authUrl);
 }

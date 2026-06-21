@@ -19,7 +19,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_denied`);
   }
 
-  const codeVerifier = request.cookies.get('tiktok_code_verifier')?.value;
+  // Read code_verifier from Supabase (no cookie needed)
+  const { data: pkceRow } = await supabase
+    .from('social_tokens')
+    .select('access_token')
+    .eq('user_id', user.id)
+    .eq('platform', 'tiktok_pkce')
+    .single();
+
+  const codeVerifier = pkceRow?.access_token ?? null;
+  console.log('TikTok PKCE: codeVerifier present =', !!codeVerifier);
 
   const clientKey = process.env.TIKTOK_CLIENT_KEY!;
   const clientSecret = process.env.TIKTOK_CLIENT_SECRET!;
@@ -46,13 +55,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const tokenData = await tokenRes.json();
 
   if (!tokenData.access_token) {
-    const errDetail = encodeURIComponent(tokenData.error_description ?? tokenData.error ?? 'unknown');
+    const errDetail = encodeURIComponent(
+      tokenData.error_description ?? tokenData.error ?? 'unknown'
+    );
     console.error('TikTok token error:', JSON.stringify(tokenData));
-    return NextResponse.redirect(`${appUrl}/settings?error=tiktok_token&detail=${errDetail}`);
+    return NextResponse.redirect(
+      `${appUrl}/settings?error=tiktok_token&detail=${errDetail}&pkce=${!!codeVerifier}`
+    );
   }
 
   const { access_token, refresh_token, open_id, scope } = tokenData;
 
+  // Clean up the temporary PKCE row
+  await supabase
+    .from('social_tokens')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('platform', 'tiktok_pkce');
+
+  // Get display name
   let displayName = open_id;
   try {
     const userRes = await fetch(
@@ -63,6 +84,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     displayName = userData.data?.user?.display_name ?? open_id;
   } catch (_) {}
 
+  // Save token to Supabase
   const { error: dbError } = await supabase.from('social_tokens').upsert(
     {
       user_id: user.id,
@@ -81,7 +103,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_save`);
   }
 
-  const res = NextResponse.redirect(`${appUrl}/settings?success=tiktok`);
-  res.cookies.delete('tiktok_code_verifier');
-  return res;
+  return NextResponse.redirect(`${appUrl}/settings?success=tiktok`);
 }
