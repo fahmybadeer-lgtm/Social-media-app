@@ -20,33 +20,35 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const codeVerifier = request.cookies.get('tiktok_code_verifier')?.value;
-  if (!codeVerifier) {
-    console.error('TikTok: missing code_verifier cookie');
-    return NextResponse.redirect(`${appUrl}/settings?error=tiktok_token`);
-  }
 
   const clientKey = process.env.TIKTOK_CLIENT_KEY!;
   const clientSecret = process.env.TIKTOK_CLIENT_SECRET!;
   const redirectUri = `${appUrl}/api/auth/tiktok/callback`;
 
+  const body: Record<string, string> = {
+    client_key: clientKey,
+    client_secret: clientSecret,
+    code,
+    grant_type: 'authorization_code',
+    redirect_uri: redirectUri,
+  };
+
+  if (codeVerifier) {
+    body.code_verifier = codeVerifier;
+  }
+
   const tokenRes = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_key: clientKey,
-      client_secret: clientSecret,
-      code,
-      grant_type: 'authorization_code',
-      redirect_uri: redirectUri,
-      code_verifier: codeVerifier,
-    }),
+    body: new URLSearchParams(body),
   });
 
   const tokenData = await tokenRes.json();
 
   if (!tokenData.access_token) {
+    const errDetail = encodeURIComponent(tokenData.error_description ?? tokenData.error ?? 'unknown');
     console.error('TikTok token error:', JSON.stringify(tokenData));
-    return NextResponse.redirect(`${appUrl}/settings?error=tiktok_token`);
+    return NextResponse.redirect(`${appUrl}/settings?error=tiktok_token&detail=${errDetail}`);
   }
 
   const { access_token, refresh_token, open_id, scope } = tokenData;
@@ -76,7 +78,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   );
 
   if (dbError) {
-    console.error('TikTok Supabase error:', dbError);
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_save`);
   }
 
