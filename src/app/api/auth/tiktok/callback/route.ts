@@ -19,16 +19,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_denied`);
   }
 
-  // Read code_verifier from Supabase (no cookie needed)
-  const { data: pkceRow } = await supabase
-    .from('social_tokens')
-    .select('access_token')
-    .eq('user_id', user.id)
-    .eq('platform', 'tiktok_pkce')
-    .single();
-
-  const codeVerifier = pkceRow?.access_token ?? null;
-  console.log('TikTok PKCE: codeVerifier present =', !!codeVerifier);
+  // Extract code_verifier from state (format: "cnbcut.<codeVerifier>")
+  const dotIndex = state.indexOf('.');
+  const codeVerifier = dotIndex !== -1 ? state.slice(dotIndex + 1) : null;
+  console.log('TikTok callback: codeVerifier present =', !!codeVerifier, '| length =', codeVerifier?.length);
 
   const clientKey = process.env.TIKTOK_CLIENT_KEY!;
   const clientSecret = process.env.TIKTOK_CLIENT_SECRET!;
@@ -45,6 +39,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (codeVerifier) {
     body.code_verifier = codeVerifier;
   }
+
+  console.log('TikTok token exchange: client_key prefix =', clientKey?.slice(0, 8));
 
   const tokenRes = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
     method: 'POST',
@@ -66,13 +62,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const { access_token, refresh_token, open_id, scope } = tokenData;
 
-  // Clean up the temporary PKCE row
-  await supabase
-    .from('social_tokens')
-    .delete()
-    .eq('user_id', user.id)
-    .eq('platform', 'tiktok_pkce');
-
   // Get display name
   let displayName = open_id;
   try {
@@ -84,7 +73,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     displayName = userData.data?.user?.display_name ?? open_id;
   } catch (_) {}
 
-  // Save token to Supabase
+  // Save to Supabase
   const { error: dbError } = await supabase.from('social_tokens').upsert(
     {
       user_id: user.id,
@@ -100,6 +89,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   );
 
   if (dbError) {
+    console.error('TikTok Supabase save error:', dbError);
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_save`);
   }
 

@@ -25,18 +25,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = generateCodeChallenge(codeVerifier);
 
-  // Store code_verifier in Supabase — no cookies, no cross-site issues
-  await supabase
-    .from('social_tokens')
-    .upsert(
-      {
-        user_id: user.id,
-        platform: 'tiktok_pkce',
-        access_token: codeVerifier,
-        is_active: false,
-      },
-      { onConflict: 'user_id,platform' }
-    );
+  // Encode code_verifier in state param — no cookie or DB needed.
+  // base64url chars are [A-Za-z0-9\-_], safe to use "." as separator.
+  const state = `cnbcut.${codeVerifier}`;
 
   const scopes = encodeURIComponent('user.info.basic,video.publish,video.upload');
 
@@ -46,7 +37,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     `&scope=${scopes}` +
     `&response_type=code` +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&state=cnbcut` +
+    `&state=${encodeURIComponent(state)}` +
     `&code_challenge=${codeChallenge}` +
     `&code_challenge_method=S256`;
 
