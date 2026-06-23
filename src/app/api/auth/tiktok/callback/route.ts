@@ -19,33 +19,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(`${appUrl}/settings?error=tiktok_denied`);
   }
 
-  // Extract code_verifier from state (format: "cnbcut.<codeVerifier>")
-  const dotIndex = state.indexOf('.');
-  const codeVerifier = dotIndex !== -1 ? state.slice(dotIndex + 1) : null;
-  console.log('TikTok callback: codeVerifier present =', !!codeVerifier, '| length =', codeVerifier?.length);
-
   const clientKey = process.env.TIKTOK_CLIENT_KEY!;
   const clientSecret = process.env.TIKTOK_CLIENT_SECRET!;
   const redirectUri = `${appUrl}/api/auth/tiktok/callback`;
 
-  const body: Record<string, string> = {
-    client_key: clientKey,
-    client_secret: clientSecret,
-    code,
-    grant_type: 'authorization_code',
-    redirect_uri: redirectUri,
-  };
-
-  if (codeVerifier) {
-    body.code_verifier = codeVerifier;
-  }
-
   console.log('TikTok token exchange: client_key prefix =', clientKey?.slice(0, 8));
 
+  // No PKCE — simple authorization_code exchange
   const tokenRes = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams(body),
+    body: new URLSearchParams({
+      client_key: clientKey,
+      client_secret: clientSecret,
+      code,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri,
+    }),
   });
 
   const tokenData = await tokenRes.json();
@@ -56,7 +46,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
     console.error('TikTok token error:', JSON.stringify(tokenData));
     return NextResponse.redirect(
-      `${appUrl}/settings?error=tiktok_token&detail=${errDetail}&pkce=${!!codeVerifier}`
+      `${appUrl}/settings?error=tiktok_token&detail=${errDetail}`
     );
   }
 

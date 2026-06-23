@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import crypto from 'crypto';
-
-function generateCodeVerifier(): string {
-  return crypto.randomBytes(32).toString('base64url');
-}
-
-function generateCodeChallenge(verifier: string): string {
-  return crypto.createHash('sha256').update(verifier).digest('base64url');
-}
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
@@ -22,24 +13,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
   const redirectUri = `${appUrl}/api/auth/tiktok/callback`;
 
-  const codeVerifier = generateCodeVerifier();
-  const codeChallenge = generateCodeChallenge(codeVerifier);
-
-  // Encode code_verifier in state param — no cookie or DB needed.
-  // base64url chars are [A-Za-z0-9\-_], safe to use "." as separator.
-  const state = `cnbcut.${codeVerifier}`;
-
   const scopes = encodeURIComponent('user.info.basic,video.publish,video.upload');
 
+  // No PKCE — TikTok sandbox does not support it
   const authUrl =
     `https://www.tiktok.com/v2/auth/authorize/` +
     `?client_key=${clientKey}` +
     `&scope=${scopes}` +
     `&response_type=code` +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&state=${encodeURIComponent(state)}` +
-    `&code_challenge=${codeChallenge}` +
-    `&code_challenge_method=S256`;
+    `&state=cnbcut`;
 
   return NextResponse.redirect(authUrl);
 }
