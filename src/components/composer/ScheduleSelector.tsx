@@ -11,24 +11,9 @@ interface ScheduleSelectorProps {
   onChange: (status: PostStatus, scheduledAt: string | null) => void
 }
 
-function toDateAndTime(isoString: string | null): { date: string; time: string } {
-  if (!isoString) {
-    const now = new Date()
-    // Default to 1 hour from now
-    now.setHours(now.getHours() + 1, 0, 0, 0)
-    return {
-      date: format(now, 'yyyy-MM-dd'),
-      time: format(now, 'HH:mm'),
-    }
-  }
-  const d = parseISO(isoString)
-  return {
-    date: format(d, 'yyyy-MM-dd'),
-    time: format(d, 'HH:mm'),
-  }
-}
-
+// Convert local date + time strings to UTC ISO string
 function toISO(date: string, time: string): string {
+  // new Date('YYYY-MM-DDTHH:mm:00') is treated as LOCAL time by browsers
   return new Date(`${date}T${time}:00`).toISOString()
 }
 
@@ -48,26 +33,46 @@ function isFuture(isoString: string): boolean {
   }
 }
 
+// Get local date/time strings, always runs in the browser
+function getDefaultDateTime(): { date: string; time: string } {
+  const now = new Date()
+  now.setHours(now.getHours() + 1, 0, 0, 0)
+  return {
+    date: format(now, 'yyyy-MM-dd'),
+    time: format(now, 'HH:mm'),
+  }
+}
+
 export default function ScheduleSelector({
   status,
   scheduledAt,
   onChange,
 }: ScheduleSelectorProps) {
-  const { date: initDate, time: initTime } = toDateAndTime(scheduledAt)
-  const [dateValue, setDateValue] = useState(initDate)
-  const [timeValue, setTimeValue] = useState(initTime)
+  // Initialize empty — will be set client-side in useEffect to avoid timezone mismatch
+  const [dateValue, setDateValue] = useState('')
+  const [timeValue, setTimeValue] = useState('')
+  const [mounted, setMounted] = useState(false)
 
-  // Minimum date for the date input (today)
-  const todayStr = format(new Date(), 'yyyy-MM-dd')
-
-  // Sync internal state when scheduledAt changes from parent
   useEffect(() => {
+    setMounted(true)
     if (scheduledAt) {
-      const { date, time } = toDateAndTime(scheduledAt)
+      // Parse the stored UTC ISO and display in local time
+      const d = new Date(scheduledAt)
+      setDateValue(format(d, 'yyyy-MM-dd'))
+      setTimeValue(format(d, 'HH:mm'))
+    } else {
+      const { date, time } = getDefaultDateTime()
       setDateValue(date)
       setTimeValue(time)
+      // Inform parent of the default scheduled time
+      if (status === 'scheduled') {
+        onChange('scheduled', toISO(date, time))
+      }
     }
-  }, [scheduledAt])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Minimum date for the date input (today in local time)
+  const todayStr = mounted ? format(new Date(), 'yyyy-MM-dd') : ''
 
   function handleStatusChange(newStatus: PostStatus) {
     if (newStatus === 'draft') {
@@ -92,7 +97,9 @@ export default function ScheduleSelector({
     }
   }
 
-  const scheduledISO = status === 'scheduled' ? toISO(dateValue, timeValue) : null
+  const scheduledISO = status === 'scheduled' && dateValue && timeValue
+    ? toISO(dateValue, timeValue)
+    : null
   const isValid = scheduledISO ? isFuture(scheduledISO) : true
 
   return (
@@ -115,38 +122,15 @@ export default function ScheduleSelector({
               : 'border-gray-700 bg-gray-800/40 hover:border-gray-600 hover:bg-gray-800/70',
           ].join(' ')}
         >
-          <div
-            className={[
-              'flex h-8 w-8 items-center justify-center rounded-lg',
-              status === 'draft' ? 'bg-indigo-600' : 'bg-gray-700',
-            ].join(' ')}
-          >
+          <div className={['flex h-8 w-8 items-center justify-center rounded-lg', status === 'draft' ? 'bg-indigo-600' : 'bg-gray-700'].join(' ')}>
             <FileText className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p
-              className={[
-                'text-sm font-semibold',
-                status === 'draft' ? 'text-indigo-300' : 'text-gray-200',
-              ].join(' ')}
-            >
-              Save as Draft
-            </p>
-            <p className="mt-0.5 text-xs text-gray-500">
-              Save and publish later
-            </p>
+            <p className={['text-sm font-semibold', status === 'draft' ? 'text-indigo-300' : 'text-gray-200'].join(' ')}>Save as Draft</p>
+            <p className="mt-0.5 text-xs text-gray-500">Save and publish later</p>
           </div>
-          <div
-            className={[
-              'ml-auto mt-auto w-4 h-4 rounded-full border-2 flex items-center justify-center',
-              status === 'draft'
-                ? 'border-indigo-500 bg-indigo-500'
-                : 'border-gray-600',
-            ].join(' ')}
-          >
-            {status === 'draft' && (
-              <div className="w-2 h-2 rounded-full bg-white" />
-            )}
+          <div className={['ml-auto mt-auto w-4 h-4 rounded-full border-2 flex items-center justify-center', status === 'draft' ? 'border-indigo-500 bg-indigo-500' : 'border-gray-600'].join(' ')}>
+            {status === 'draft' && <div className="w-2 h-2 rounded-full bg-white" />}
           </div>
         </button>
 
@@ -162,44 +146,21 @@ export default function ScheduleSelector({
               : 'border-gray-700 bg-gray-800/40 hover:border-gray-600 hover:bg-gray-800/70',
           ].join(' ')}
         >
-          <div
-            className={[
-              'flex h-8 w-8 items-center justify-center rounded-lg',
-              status === 'scheduled' ? 'bg-indigo-600' : 'bg-gray-700',
-            ].join(' ')}
-          >
+          <div className={['flex h-8 w-8 items-center justify-center rounded-lg', status === 'scheduled' ? 'bg-indigo-600' : 'bg-gray-700'].join(' ')}>
             <Send className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p
-              className={[
-                'text-sm font-semibold',
-                status === 'scheduled' ? 'text-indigo-300' : 'text-gray-200',
-              ].join(' ')}
-            >
-              Schedule Post
-            </p>
-            <p className="mt-0.5 text-xs text-gray-500">
-              Publish at a specific time
-            </p>
+            <p className={['text-sm font-semibold', status === 'scheduled' ? 'text-indigo-300' : 'text-gray-200'].join(' ')}>Schedule Post</p>
+            <p className="mt-0.5 text-xs text-gray-500">Publish at a specific time</p>
           </div>
-          <div
-            className={[
-              'ml-auto mt-auto w-4 h-4 rounded-full border-2 flex items-center justify-center',
-              status === 'scheduled'
-                ? 'border-indigo-500 bg-indigo-500'
-                : 'border-gray-600',
-            ].join(' ')}
-          >
-            {status === 'scheduled' && (
-              <div className="w-2 h-2 rounded-full bg-white" />
-            )}
+          <div className={['ml-auto mt-auto w-4 h-4 rounded-full border-2 flex items-center justify-center', status === 'scheduled' ? 'border-indigo-500 bg-indigo-500' : 'border-gray-600'].join(' ')}>
+            {status === 'scheduled' && <div className="w-2 h-2 rounded-full bg-white" />}
           </div>
         </button>
       </div>
 
       {/* Date + time inputs (shown only when "scheduled") */}
-      {status === 'scheduled' && (
+      {status === 'scheduled' && mounted && (
         <div className="rounded-xl border border-gray-700 bg-gray-800/50 p-4 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             {/* Date */}
