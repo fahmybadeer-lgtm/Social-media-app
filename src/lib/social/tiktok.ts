@@ -90,6 +90,7 @@ async function publishTikTokPhoto({
         disable_comment: false,
         disable_stitch: false,
         media_type: 'PHOTO',
+        post_mode: 'DIRECT_POST',
       },
       source_info: {
         source: 'PULL_FROM_URL',
