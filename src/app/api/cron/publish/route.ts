@@ -150,3 +150,4 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ processed: processed.length, failed: failed.length, items: { processed, failed } });
 }
+// cron trigger Thu Jun 25 12:21:01 UTC 2026
