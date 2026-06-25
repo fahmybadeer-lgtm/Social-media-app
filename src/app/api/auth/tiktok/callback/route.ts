@@ -50,7 +50,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const { access_token, refresh_token, open_id, scope } = tokenData;
+  const { access_token, refresh_token, open_id, scope, expires_in } = tokenData;
 
   // Get display name
   let displayName = open_id;
@@ -70,6 +70,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       platform: 'tiktok',
       access_token,
       refresh_token: refresh_token ?? null,
+      token_expires_at: expires_in ? new Date(Date.now() + expires_in * 1000).toISOString() : null,
       platform_user_id: open_id,
       platform_username: displayName,
       scope: scope ?? 'video.publish',

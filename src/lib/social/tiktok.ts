@@ -117,3 +117,31 @@ export function buildTikTokCaption(caption: string, hashtags: string[]): string 
   const hashtagLine = hashtags.map((t) => '#' + t).join(' ');
   return [caption, hashtagLine].filter(Boolean).join('\n\n');
 }
+
+export async function refreshTikTokToken(refreshToken: string): Promise<{
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}> {
+  const res = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_key: process.env.TIKTOK_CLIENT_KEY!,
+      client_secret: process.env.TIKTOK_CLIENT_SECRET!,
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    }),
+  });
+
+  const data = await res.json();
+  if (!data.access_token) {
+    throw new Error(data.error_description ?? data.error ?? 'TikTok token refresh failed');
+  }
+
+  return {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token ?? refreshToken,
+    expires_in: data.expires_in ?? 86400,
+  };
+}

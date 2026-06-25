@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { publishToFacebook, buildFacebookMessage } from '@/lib/social/facebook';
 import { publishToInstagram, buildInstagramCaption } from '@/lib/social/instagram';
 import { publishToTikTok, buildTikTokCaption } from '@/lib/social/tiktok';
+import { getValidTikTokAccessToken } from '@/lib/social/token-refresh';
 
 // Use service role key so cron can bypass RLS
 function getServiceClient() {
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
       }
 
       else if (item.platform === 'tiktok') {
-        const ttToken = tokenMap.tiktok?.access_token;
+        const ttToken = await getValidTikTokAccessToken(supabase, user_id);
         if (!ttToken || !mediaUrl) throw new Error('Missing TikTok token or media');
         const ttCaption = buildTikTokCaption(caption ?? '', hashtags);
         const result = await publishToTikTok({ caption: ttCaption, mediaUrl, mediaType: mediaType ?? 'video', accessToken: ttToken });

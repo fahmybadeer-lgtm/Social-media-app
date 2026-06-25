@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { publishToFacebook, buildFacebookMessage } from '@/lib/social/facebook';
 import { publishToInstagram, buildInstagramCaption } from '@/lib/social/instagram';
 import { publishToTikTok, buildTikTokCaption } from '@/lib/social/tiktok';
+import { getValidTikTokAccessToken } from '@/lib/social/token-refresh';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     const supabase = await createClient();
@@ -111,13 +112,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const igUserId = igTokenRow?.platform_user_id ?? process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
     const igAccessToken = igTokenRow?.access_token ?? tokenRow?.refresh_token ?? tokenRow?.access_token;
 
-  const { data: ttTokenRow } = await supabase
-      .from('social_tokens')
-      .select('access_token')
-      .eq('user_id', user.id)
-      .eq('platform', 'tiktok')
-      .eq('is_active', true)
-      .single();
+  const ttToken = platforms.includes('tiktok')
+      ? await getValidTikTokAccessToken(supabase, user.id)
+      : null;
 
 
 
@@ -189,7 +186,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 
   if (platforms.includes('tiktok')) {
-        const ttToken = ttTokenRow?.access_token;
+        
         if (!ttToken) {
                 await supabase.from('scheduled_queue')
                   .update({ status: 'failed', error_message: 'TikTok not connected. Go to Settings to connect TikTok.' })
