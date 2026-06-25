@@ -83,14 +83,14 @@ async function publishTikTokPhoto({
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: JSON.stringify({
+      post_mode: 'DIRECT_POST',
+      media_type: 'PHOTO',
       post_info: {
         title: caption.slice(0, 2200),
         privacy_level: 'SELF_ONLY',
         disable_duet: false,
         disable_comment: false,
         disable_stitch: false,
-        media_type: 'PHOTO',
-        post_mode: 'DIRECT_POST',
       },
       source_info: {
         source: 'PULL_FROM_URL',
