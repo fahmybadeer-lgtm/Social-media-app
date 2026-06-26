@@ -194,9 +194,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 lastError = 'TikTok not connected. Go to Settings to connect TikTok.';
         } else if (!mediaUrl) {
                 await supabase.from('scheduled_queue')
-                  .update({ status: 'failed', error_message: 'TikTok requires a photo or video.' })
+                  .update({ status: 'failed', error_message: 'TikTok requires a video.' })
                   .eq('post_id', post.id).eq('platform', 'tiktok');
-                lastError = 'TikTok requires a photo or video. Please select media before posting.';
+                lastError = 'TikTok requires a video. Please upload a video to post to TikTok.';
+        } else if (mediaType === 'image') {
+                await supabase.from('scheduled_queue')
+                  .update({ status: 'failed', error_message: 'TikTok only supports video posts. Please upload a video.' })
+                  .eq('post_id', post.id).eq('platform', 'tiktok');
+                lastError = 'TikTok only supports video posts — Facebook and Instagram got your image. Upload a video to post to TikTok.';
         } else {
                 try {
                           const ttCaption = buildTikTokCaption(caption ?? '', hashtags);

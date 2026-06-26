@@ -13,7 +13,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
   const redirectUri = `${appUrl}/api/auth/tiktok/callback`;
 
-  const scopes = encodeURIComponent('user.info.basic,video.publish,video.upload,photo.publish');
+  const scopes = encodeURIComponent('user.info.basic,video.publish,video.upload');
 
   // No PKCE — TikTok sandbox does not support it
   const authUrl =
