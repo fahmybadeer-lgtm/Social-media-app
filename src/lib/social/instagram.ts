@@ -83,13 +83,14 @@ export async function publishToInstagram(
     return publishContainer(igUserId, containerId, accessToken);
   }
 
-  // For images: create container then publish immediately
-  // Instagram processes images synchronously during container creation
+  // For images: create container, wait for processing, then publish
   const containerId = await createMediaContainer(
     igUserId,
     { image_url: mediaUrl, caption },
     accessToken,
   );
+  // Poll until container is ready (images are usually fast but can be slow)
+  await waitForVideoContainer(containerId, accessToken, 10);
   return publishContainer(igUserId, containerId, accessToken);
 }
 
