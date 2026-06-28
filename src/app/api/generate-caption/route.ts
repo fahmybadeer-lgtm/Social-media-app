@@ -20,6 +20,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     instructions?: unknown;
     businessContext?: unknown;
     voiceTone?: unknown;
+    originalCaption?: unknown;
+    enhanceRequest?: unknown;
   };
 
   try {
