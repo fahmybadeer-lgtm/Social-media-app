@@ -64,7 +64,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const mediaType = body.mediaType === 'video' ? 'video' : 'image';
   const instructions = typeof body.instructions === 'string' && body.instructions.trim()
     ? body.instructions.trim() : undefined;
-  const CNB_CONTEXT = 'CNB CUT Barbershop, Sterling VA. Luxury barbershop, black and gold theme. Services: haircuts, skin fades, beard grooming, straight razor shaves, hot towel services, kids cuts, head shaves, camouflage color for gray hair, facial waxing. Amenities: complimentary beverage bar (soda, water, coffee, tea), luxury black and gold waiting area.';
+  const CNB_CONTEXT = 'CNB CUT Barbershop, Sterling VA. Website: www.cnbcut.com. Luxury barbershop, black and gold theme. Services: haircuts, skin fades, beard grooming, straight razor shaves, hot towel services, kids cuts, head shaves, camouflage color for gray hair, facial waxing. Amenities: complimentary beverage bar (soda, water, coffee, tea), luxury black and gold waiting area. When referencing a booking link or website, use www.cnbcut.com instead of "link in bio".';
   const businessContext = typeof body.businessContext === 'string' && body.businessContext.trim()
     ? body.businessContext.trim() : CNB_CONTEXT;
   const voiceTone = typeof body.voiceTone === 'string' && body.voiceTone.trim()
