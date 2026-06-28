@@ -62,10 +62,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const mediaType = body.mediaType === 'video' ? 'video' : 'image';
   const instructions = typeof body.instructions === 'string' && body.instructions.trim()
     ? body.instructions.trim() : undefined;
+  const CNB_CONTEXT = 'CNB CUT Barbershop, Sterling VA. Luxury barbershop, black and gold theme. Services: haircuts, skin fades, beard grooming, straight razor shaves, hot towel services, kids cuts, head shaves, camouflage color for gray hair, facial waxing. Amenities: complimentary beverage bar (soda, water, coffee, tea), luxury black and gold waiting area.';
   const businessContext = typeof body.businessContext === 'string' && body.businessContext.trim()
-    ? body.businessContext.trim() : undefined;
+    ? body.businessContext.trim() : CNB_CONTEXT;
   const voiceTone = typeof body.voiceTone === 'string' && body.voiceTone.trim()
     ? body.voiceTone.trim() : undefined;
+  const originalCaption = typeof body.originalCaption === 'string' && body.originalCaption.trim()
+    ? body.originalCaption.trim() : undefined;
+  const enhanceRequest = typeof body.enhanceRequest === 'string' && body.enhanceRequest.trim()
+    ? body.enhanceRequest.trim() : undefined;
 
   let caption: string;
   try {
@@ -77,6 +82,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       instructions,
       businessContext,
       voiceTone,
+      originalCaption,
+      enhanceRequest,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'An unexpected error occurred.';

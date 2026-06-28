@@ -206,7 +206,7 @@ export default function ComposerPage() {
   const canSubmit =
     !isSaving &&
     form.platforms.length > 0 &&
-    (form.caption.trim().length > 0 || form.hashtags.length > 0) &&
+    (form.caption.trim().length > 0 || form.hashtags.length > 0 || !!form.selectedMediaId) &&
     !captionOverLimit
 
   // ---------------------------------------------------------------------------
@@ -406,7 +406,7 @@ export default function ComposerPage() {
                       ? 'Select at least one platform to continue.'
                       : captionOverLimit
                       ? 'Shorten your caption to match platform limits.'
-                      : 'Add a caption or hashtags before publishing.'}
+                      : 'Add a caption, hashtag, or select an image before publishing.'}
                   </p>
                 </div>
               )}

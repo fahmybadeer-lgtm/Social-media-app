@@ -75,7 +75,13 @@ export default function AICaptionGenerator({
       }
 
       if (extraContext.trim()) body.rawConcept = extraContext.trim()
-      if (isRegenerate && instructions.trim()) body.instructions = instructions.trim()
+      // Enhance mode: if caption exists + instructions typed, refine without rewriting
+      if (generatedCaption && instructions.trim()) {
+        body.originalCaption = generatedCaption
+        body.enhanceRequest = instructions.trim()
+      } else if (instructions.trim()) {
+        body.instructions = instructions.trim()
+      }
 
       const res = await fetch('/api/generate-caption', {
         method: 'POST',

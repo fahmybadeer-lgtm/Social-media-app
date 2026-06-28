@@ -20,6 +20,8 @@ export interface GenerateCaptionParams {
   instructions?: string;
   businessContext?: string;
   voiceTone?: string;
+  originalCaption?: string;
+  enhanceRequest?: string;
 }
 
 const SYSTEM_PROMPT = `You are a professional social media copywriter who writes captions for businesses and creators.
@@ -55,11 +57,34 @@ async function fetchImageAsBase64(url: string): Promise<{ base64: string; mediaT
   }
 }
 
+const ENHANCE_SYSTEM_PROMPT = `You are a social media caption enhancer for CNB CUT barbershop.
+Your task:
+- Keep the original caption's exact style, tone, and vibe
+- Do not rewrite it from scratch
+- Naturally weave in the user's requested details
+- Maintain the same quality of English and professionalism
+- Return only the enhanced caption, nothing else`;
+
 export async function generateCaption(params: GenerateCaptionParams): Promise<string> {
-  const { rawConcept, platforms, mediaUrl, mediaType, instructions, businessContext, voiceTone } = params;
+  const { rawConcept, platforms, mediaUrl, mediaType, instructions, businessContext, voiceTone, originalCaption, enhanceRequest } = params;
 
   if (!platforms || platforms.length === 0) {
     throw new Error('generateCaption: at least one platform must be specified.');
+  }
+
+  // Enhance mode: refine existing caption without rewriting it
+  if (originalCaption && enhanceRequest) {
+    const enhancePrompt = `Here is the original caption:\n\n"${originalCaption}"\n\nThe user wants to add or include: ${enhanceRequest}`;
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 512,
+      system: ENHANCE_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: enhancePrompt }],
+    });
+    const textBlock = response.content.find((b) => b.type === 'text');
+    if (textBlock && textBlock.type === 'text' && textBlock.text.trim()) {
+      return textBlock.text.trim();
+    }
   }
 
   const platformList = platforms
