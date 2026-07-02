@@ -8,19 +8,22 @@ export interface PublishToTikTokParams {
   caption: string;
   mediaUrl: string;
   mediaType: 'image' | 'video';
+  /** Additional image URLs beyond mediaUrl — when present, a multi-photo post (up to 35 images) is created. */
+  extraImageUrls?: string[];
   accessToken: string;
 }
 
 export async function publishToTikTok(
   params: PublishToTikTokParams,
 ): Promise<TikTokPostResult> {
-  const { caption, mediaUrl, mediaType, accessToken } = params;
+  const { caption, mediaUrl, mediaType, extraImageUrls, accessToken } = params;
 
   if (mediaType === 'video') {
     return publishTikTokVideo({ caption, mediaUrl, accessToken });
   }
 
-  return publishTikTokPhoto({ caption, mediaUrl, accessToken });
+  const photoUrls = [mediaUrl, ...(extraImageUrls ?? [])];
+  return publishTikTokPhoto({ caption, photoUrls, accessToken });
 }
 
 async function publishTikTokVideo({
@@ -31,8 +34,7 @@ async function publishTikTokVideo({
   caption: string;
   mediaUrl: string;
   accessToken: string;
-}): Promise<TikTokPostResult> {
-  const initRes = await fetch(`${TIKTOK_API_BASE}/post/publish/video/init/`, {
+}): Promise<TikTokPostResult> { const initRes = await fetch(`${TIKTOK_API_BASE}/post/publish/video/init/`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -69,13 +71,16 @@ async function publishTikTokVideo({
 
 async function publishTikTokPhoto({
   caption,
-  mediaUrl,
+  photoUrls,
   accessToken,
 }: {
   caption: string;
-  mediaUrl: string;
+  photoUrls: string[];
   accessToken: string;
 }): Promise<TikTokPostResult> {
+  // TikTok photo posts support up to 35 images per post.
+  const images = photoUrls.slice(0, 35);
+
   const initRes = await fetch(`${TIKTOK_API_BASE}/post/publish/content/init/`, {
     method: 'POST',
     headers: {
@@ -86,16 +91,15 @@ async function publishTikTokPhoto({
       post_mode: 'DIRECT_POST',
       media_type: 'PHOTO',
       post_info: {
-        title: caption.slice(0, 2200),
+        title: caption.slice(0, 90),
+        description: caption.slice(0, 4000),
         privacy_level: 'SELF_ONLY',
-        disable_duet: false,
         disable_comment: false,
-        disable_stitch: false,
       },
       source_info: {
         source: 'PULL_FROM_URL',
         photo_cover_index: 0,
-        photo_images: [mediaUrl],
+        photo_images: images,
       },
     }),
   });
