@@ -9,6 +9,8 @@ export interface PublishToInstagramParams {
   caption: string;
   mediaUrl: string;
   mediaType: 'image' | 'video';
+  /** Additional image URLs beyond mediaUrl — when present (1+), a carousel post is created. */
+  extraImageUrls?: string[];
   igUserId: string;
   accessToken: string;
 }
@@ -68,10 +70,41 @@ async function publishContainer(
   return { id: data.id as string };
 }
 
+async function publishCarousel(
+  igUserId: string,
+  caption: string,
+  imageUrls: string[],
+  accessToken: string,
+): Promise<InstagramPostResult> {
+  // Instagram carousels require 2-10 items.
+  const items = imageUrls.slice(0, 10);
+
+  // Step 1: create a carousel-item container for each image.
+  const childIds = await Promise.all(
+    items.map((url) =>
+      createMediaContainer(igUserId, { image_url: url, is_carousel_item: 'true' }, accessToken),
+    ),
+  );
+
+  // Step 2: create the parent carousel container referencing all children.
+  const parentId = await createMediaContainer(
+    igUserId,
+    { media_type: 'CAROUSEL', children: childIds.join(','), caption },
+    accessToken,
+  );
+
+  // Step 3: publish.
+  return publishContainer(igUserId, parentId, accessToken);
+}
+
 export async function publishToInstagram(
   params: PublishToInstagramParams,
 ): Promise<InstagramPostResult> {
-  const { caption, mediaUrl, mediaType, igUserId, accessToken } = params;
+  const { caption, mediaUrl, mediaType, extraImageUrls, igUserId, accessToken } = params;
+
+  if (mediaType === 'image' && extraImageUrls && extraImageUrls.length > 0) {
+    return publishCarousel(igUserId, caption, [mediaUrl, ...extraImageUrls], accessToken);
+  }
 
   if (mediaType === 'video') {
     const containerId = await createMediaContainer(
