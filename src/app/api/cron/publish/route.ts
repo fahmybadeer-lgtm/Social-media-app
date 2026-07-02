@@ -4,6 +4,7 @@ import { publishToFacebook, buildFacebookMessage } from '@/lib/social/facebook';
 import { publishToInstagram, buildInstagramCaption } from '@/lib/social/instagram';
 import { publishToTikTok, buildTikTokCaption } from '@/lib/social/tiktok';
 import { getValidTikTokAccessToken } from '@/lib/social/token-refresh';
+import { resolvePostMedia } from '@/lib/social/media-resolver';
 
 // Use service role key so cron can bypass RLS
 function getServiceClient() {
@@ -62,19 +63,7 @@ export async function GET(request: NextRequest) {
       .eq('id', item.id);
 
     // Get media if any
-    let mediaUrl: string | undefined;
-    let mediaType: 'image' | 'video' | undefined;
-    if (media_ids.length > 0) {
-      const { data: mediaRow } = await supabase
-        .from('media_library')
-        .select('file_url, file_type')
-        .eq('id', media_ids[0])
-        .single();
-      if (mediaRow) {
-        mediaUrl = mediaRow.file_url;
-        mediaType = mediaRow.file_type as 'image' | 'video';
-      }
-    }
+    const { mediaUrl, mediaType, extraImageUrls } = await resolvePostMedia(supabase, media_ids);
 
     // Get platform tokens for this user
     const { data: tokens } = await supabase
@@ -91,7 +80,7 @@ export async function GET(request: NextRequest) {
         const pageId = process.env.FACEBOOK_PAGE_ID!;
         const accessToken = tokenMap.facebook?.access_token ?? process.env.FACEBOOK_PAGE_ACCESS_TOKEN!;
         const message = buildFacebookMessage(caption ?? '', hashtags);
-        const result = await publishToFacebook({ message, mediaUrl, mediaType, pageId, accessToken });
+        const result = await publishToFacebook({ message, mediaUrl, mediaType, extraImageUrls, pageId, accessToken });
         await supabase.from('scheduled_queue')
           .update({ status: 'published', metadata: { facebook_post_id: result.id } })
           .eq('id', item.id);
@@ -103,7 +92,7 @@ export async function GET(request: NextRequest) {
         const accessToken = tokenMap.instagram?.access_token ?? tokenMap.facebook?.refresh_token;
         if (!igUserId || !accessToken || !mediaUrl) throw new Error('Missing Instagram token or media');
         const igCaption = buildInstagramCaption(caption ?? '', hashtags);
-        const result = await publishToInstagram({ caption: igCaption, mediaUrl, mediaType: mediaType ?? 'image', igUserId, accessToken });
+        const result = await publishToInstagram({ caption: igCaption, mediaUrl, mediaType: mediaType ?? 'image', extraImageUrls, igUserId, accessToken });
         await supabase.from('scheduled_queue')
           .update({ status: 'published', metadata: { instagram_post_id: result.id } })
           .eq('id', item.id);
@@ -114,7 +103,7 @@ export async function GET(request: NextRequest) {
         const ttToken = await getValidTikTokAccessToken(supabase, user_id);
         if (!ttToken || !mediaUrl) throw new Error('Missing TikTok token or media');
         const ttCaption = buildTikTokCaption(caption ?? '', hashtags);
-        const result = await publishToTikTok({ caption: ttCaption, mediaUrl, mediaType: mediaType ?? 'video', accessToken: ttToken });
+        const result = await publishToTikTok({ caption: ttCaption, mediaUrl, mediaType: mediaType ?? 'video', extraImageUrls, accessToken: ttToken });
         await supabase.from('scheduled_queue')
           .update({ status: 'published', metadata: { tiktok_publish_id: result.publish_id } })
           .eq('id', item.id);
