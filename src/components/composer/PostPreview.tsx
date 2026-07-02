@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, ThumbsUp, Share2, Play } from 'lucide-react'
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, ThumbsUp, Share2, Play, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Platform, MediaFile } from '@/types'
 
 interface PostPreviewProps {
   caption: string
   hashtags: string[]
-  selectedMedia: MediaFile | null
+  selectedMedia: MediaFile[]
   platforms: Platform[]
 }
 
@@ -31,7 +31,7 @@ const PLATFORM_LABELS: Record<Platform, string> = {
 }
 
 // ---------------------------------------------------------------------------
-// Media element
+// Media element (single item)
 // ---------------------------------------------------------------------------
 
 function MediaElement({
@@ -97,6 +97,67 @@ function MediaElement({
 }
 
 // ---------------------------------------------------------------------------
+// Media carousel (handles 0, 1, or many items — e.g. Instagram/Facebook carousels)
+// ---------------------------------------------------------------------------
+
+function MediaCarousel({
+  media,
+  className,
+}: {
+  media: MediaFile[]
+  className?: string
+}) {
+  const [index, setIndex] = useState(0)
+
+  if (media.length === 0) {
+    return <MediaElement media={null} className={className} />
+  }
+
+  const current = media[Math.min(index, media.length - 1)]
+
+  return (
+    <div className={['relative', className ?? ''].join(' ')}>
+      <MediaElement media={current} className="w-full h-full" />
+
+      {media.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setIndex((i) => (i - 1 + media.length) % media.length)}
+            className="absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center text-white"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIndex((i) => (i + 1) % media.length)}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center text-white"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-3 h-3" />
+          </button>
+          <div className="absolute top-1.5 right-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] text-white">
+            {index + 1}/{media.length}
+          </div>
+          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
+            {media.map((_, i) => (
+              <span
+                key={i}
+                className={[
+                  'w-1 h-1 rounded-full',
+                  i === index ? 'bg-white' : 'bg-white/40',
+                ].join(' ')}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Platform previews
 // ---------------------------------------------------------------------------
 
@@ -107,7 +168,7 @@ function InstagramPreview({
 }: {
   caption: string
   hashtags: string[]
-  media: MediaFile | null
+  media: MediaFile[]
 }) {
   return (
     <div className="flex flex-col bg-black text-white text-[11px]">
@@ -121,7 +182,7 @@ function InstagramPreview({
       </div>
 
       {/* Square media */}
-      <MediaElement media={media} className="w-full aspect-square" />
+      <MediaCarousel media={media} className="w-full aspect-square" />
 
       {/* Action row */}
       <div className="flex items-center gap-3 px-3 py-2">
@@ -160,15 +221,15 @@ function TikTokPreview({
 }: {
   caption: string
   hashtags: string[]
-  media: MediaFile | null
+  media: MediaFile[]
 }) {
   return (
     <div className="relative flex flex-col bg-black text-white overflow-hidden aspect-[9/16]">
-      {/* Full-bleed video */}
-      <MediaElement media={media} className="absolute inset-0 w-full h-full" />
+      {/* Full-bleed media (video, or photo-mode carousel) */}
+      <MediaCarousel media={media} className="absolute inset-0 w-full h-full" />
 
       {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
       {/* Right-side action bar */}
       <div className="absolute right-2 bottom-20 flex flex-col items-center gap-4 z-10">
@@ -223,7 +284,7 @@ function FacebookPreview({
 }: {
   caption: string
   hashtags: string[]
-  media: MediaFile | null
+  media: MediaFile[]
 }) {
   return (
     <div className="flex flex-col bg-[#1c1e21] text-white text-[11px] rounded-lg overflow-hidden">
@@ -258,7 +319,7 @@ function FacebookPreview({
       </div>
 
       {/* Wide media (16:9) */}
-      <MediaElement media={media} className="w-full aspect-video" />
+      <MediaCarousel media={media} className="w-full aspect-video" />
 
       {/* Reaction counts */}
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-700/50">
@@ -293,7 +354,7 @@ function LinkedInPreview({
 }: {
   caption: string
   hashtags: string[]
-  media: MediaFile | null
+  media: MediaFile[]
 }) {
   return (
     <div className="flex flex-col bg-[#1b1f23] text-white text-[11px] rounded-lg overflow-hidden border border-gray-700">
@@ -329,8 +390,8 @@ function LinkedInPreview({
       </div>
 
       {/* Media */}
-      {media && (
-        <MediaElement media={media} className="w-full aspect-video" />
+      {media.length > 0 && (
+        <MediaCarousel media={media} className="w-full aspect-video" />
       )}
 
       {/* Stats */}
