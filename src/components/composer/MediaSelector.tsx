@@ -5,25 +5,23 @@ import Link from 'next/link'
 import { Search, Upload, Check, ImageIcon, Video, X } from 'lucide-react'
 import type { MediaFile } from '@/types'
 
-interface MediaSelectorProps {
-  selectedMediaId: string | null
-  onSelect: (mediaId: string | null) => void
-  media: MediaFile[]
-}
+const MAX_IMAGES = 10
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+interface MediaSelectorProps {
+  selectedMediaIds: string[]
+  onSelect: (mediaIds: string[]) => void
+  media: MediaFile[]
 }
 
 function MediaThumbnail({
   item,
   isSelected,
+  order,
   onSelect,
 }: {
   item: MediaFile
   isSelected: boolean
+  order: number | null
   onSelect: () => void
 }) {
   const thumbSrc = item.thumbnail_url ?? item.file_url
@@ -66,10 +64,16 @@ function MediaThumbnail({
         ].join(' ')}
       />
 
-      {/* Selected checkmark */}
+      {/* Selected checkmark / order badge */}
       {isSelected && (
-        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center shadow">
-          <Check className="w-3 h-3 text-white" strokeWidth={3} />
+        <div className="absolute top-1.5 right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-indigo-600 flex items-center justify-center shadow">
+          {order !== null && order > 0 ? (
+            <span className="text-[10px] font-semibold text-white leading-none">
+              {order}
+            </span>
+          ) : (
+            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+          )}
         </div>
       )}
 
@@ -89,7 +93,7 @@ function MediaThumbnail({
 }
 
 export default function MediaSelector({
-  selectedMediaId,
+  selectedMediaIds,
   onSelect,
   media,
 }: MediaSelectorProps) {
@@ -112,7 +116,35 @@ export default function MediaSelector({
     return result
   }, [media, typeFilter, searchQuery])
 
-  const selectedItem = media.find((m) => m.id === selectedMediaId) ?? null
+  const selectedItems = useMemo(
+    () => selectedMediaIds.map((id) => media.find((m) => m.id === id)).filter(Boolean) as MediaFile[],
+    [selectedMediaIds, media]
+  )
+  const hasVideoSelected = selectedItems.some((m) => m.file_type === 'video')
+
+  function toggleSelect(item: MediaFile) {
+    const alreadySelected = selectedMediaIds.includes(item.id)
+
+    if (alreadySelected) {
+      onSelect(selectedMediaIds.filter((id) => id !== item.id))
+      return
+    }
+
+    if (item.file_type === 'video') {
+      // Videos are single-select — picking one replaces the whole selection.
+      onSelect([item.id])
+      return
+    }
+
+    // Picking an image while a video is selected starts a fresh image selection.
+    const base = hasVideoSelected ? [] : selectedMediaIds
+    if (base.length >= MAX_IMAGES) return
+    onSelect([...base, item.id])
+  }
+
+  function removeSelected(id: string) {
+    onSelect(selectedMediaIds.filter((mid) => mid !== id))
+  }
 
   return (
     <div className="space-y-3">
@@ -130,41 +162,51 @@ export default function MediaSelector({
         </Link>
       </div>
 
-      {/* Selected item summary */}
-      {selectedItem && (
-        <div className="flex items-center gap-2 rounded-lg border border-indigo-500/40 bg-indigo-600/10 px-3 py-2">
-          {(selectedItem.thumbnail_url ?? selectedItem.file_url) ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={selectedItem.thumbnail_url ?? selectedItem.file_url}
-              alt={selectedItem.original_name}
-              className="w-8 h-8 rounded object-cover flex-shrink-0"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded bg-gray-700 flex items-center justify-center flex-shrink-0">
-              {selectedItem.file_type === 'video' ? (
-                <Video className="w-4 h-4 text-gray-400" />
+      {/* Helper text */}
+      <p className="text-[11px] text-gray-500">
+        Select up to {MAX_IMAGES} photos for a multi-image post, or one video.
+      </p>
+
+      {/* Selected items summary */}
+      {selectedItems.length > 0 && (
+        <div className="flex flex-wrap gap-2 rounded-lg border border-indigo-500/40 bg-indigo-600/10 p-2">
+          {selectedItems.map((item, i) => (
+            <div
+              key={item.id}
+              className="relative flex items-center gap-2 rounded-md bg-gray-900/60 pl-1.5 pr-2 py-1.5"
+            >
+              {(item.thumbnail_url ?? item.file_url) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.thumbnail_url ?? item.file_url}
+                  alt={item.original_name}
+                  className="w-7 h-7 rounded object-cover flex-shrink-0"
+                />
               ) : (
-                <ImageIcon className="w-4 h-4 text-gray-400" />
+                <div className="w-7 h-7 rounded bg-gray-700 flex items-center justify-center flex-shrink-0">
+                  {item.file_type === 'video' ? (
+                    <Video className="w-3.5 h-3.5 text-gray-400" />
+                  ) : (
+                    <ImageIcon className="w-3.5 h-3.5 text-gray-400" />
+                  )}
+                </div>
               )}
+              <div className="min-w-0">
+                <p className="text-[10px] font-medium text-indigo-300 truncate max-w-[90px]">
+                  {selectedItems.length > 1 ? `${i + 1}. ` : ''}
+                  {item.original_name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => removeSelected(item.id)}
+                className="text-gray-500 hover:text-white transition-colors flex-shrink-0"
+                aria-label="Deselect media"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-indigo-300 truncate">
-              {selectedItem.original_name}
-            </p>
-            <p className="text-[10px] text-gray-500">
-              {selectedItem.file_type} · {formatFileSize(selectedItem.file_size)}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => onSelect(null)}
-            className="text-gray-500 hover:text-white transition-colors flex-shrink-0"
-            aria-label="Deselect media"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          ))}
         </div>
       )}
 
@@ -200,57 +242,25 @@ export default function MediaSelector({
       </div>
 
       {/* Grid */}
-      <div className="max-h-64 overflow-y-auto rounded-lg border border-gray-800 bg-gray-900/50 p-2">
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            {media.length === 0 ? (
-              <>
-                <ImageIcon className="w-10 h-10 text-gray-600 mb-3" />
-                <p className="text-sm font-medium text-gray-400">
-                  No media in your library
-                </p>
-                <p className="text-xs text-gray-600 mt-1 mb-4">
-                  Upload images or videos to get started
-                </p>
-                <Link
-                  href="/media-library"
-                  className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-500 transition-colors"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  Go to Media Library
-                </Link>
-              </>
-            ) : (
-              <>
-                <Search className="w-8 h-8 text-gray-600 mb-2" />
-                <p className="text-sm text-gray-400">
-                  No results for &ldquo;{searchQuery}&rdquo;
-                </p>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-4 gap-2">
-            {filtered.map((item) => (
-              <MediaThumbnail
-                key={item.id}
-                item={item}
-                isSelected={selectedMediaId === item.id}
-                onSelect={() =>
-                  onSelect(selectedMediaId === item.id ? null : item.id)
-                }
-              />
-            ))}
-          </div>
+      <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-64 overflow-y-auto pr-1">
+        {filtered.map((item) => {
+          const idx = selectedMediaIds.indexOf(item.id)
+          return (
+            <MediaThumbnail
+              key={item.id}
+              item={item}
+              isSelected={idx !== -1}
+              order={selectedItems.length > 1 ? idx + 1 : null}
+              onSelect={() => toggleSelect(item)}
+            />
+          )
+        })}
+        {filtered.length === 0 && (
+          <p className="col-span-full text-center text-xs text-gray-500 py-6">
+            No media found.
+          </p>
         )}
       </div>
-
-      {filtered.length > 0 && (
-        <p className="text-xs text-gray-500">
-          {filtered.length} item{filtered.length !== 1 ? 's' : ''}
-          {selectedMediaId ? ' · 1 selected' : ''}
-        </p>
-      )}
     </div>
   )
 }
