@@ -21,7 +21,7 @@ interface ComposerFormState {
   caption: string
   hashtags: string[]
   platforms: Platform[]
-  selectedMediaId: string | null
+  selectedMediaIds: string[]
   status: PostStatus
   scheduledAt: string | null
   rawConcept: string
@@ -32,7 +32,7 @@ const INITIAL_STATE: ComposerFormState = {
   caption: '',
   hashtags: [],
   platforms: [],
-  selectedMediaId: null,
+  selectedMediaIds: [],
   status: 'draft',
   scheduledAt: null,
   rawConcept: '',
@@ -85,7 +85,7 @@ function Toast({
         className="text-current/60 hover:text-current transition-colors ml-1"
         aria-label="Dismiss"
       >
-        ÃÂ
+        ×
       </button>
     </div>
   )
@@ -113,7 +113,7 @@ export default function ComposerPage() {
   // Redirect to media library if media loading is done and library is empty
   useEffect(() => {
     if (!mediaLoading && media.length === 0) {
-      // We don't force redirect Ã¢ÂÂ we show inline empty state instead
+      // We don't force redirect — we show inline empty state instead
       // If you want hard redirect, uncomment:
       // router.push('/media-library')
     }
@@ -123,13 +123,14 @@ export default function ComposerPage() {
   // Derived state
   // ---------------------------------------------------------------------------
 
-  const selectedMedia: MediaFile | null = useMemo(
+  const selectedMediaList: MediaFile[] = useMemo(
     () =>
-      form.selectedMediaId
-        ? (media.find((m) => m.id === form.selectedMediaId) as MediaFile | undefined) ?? null
-        : null,
-    [form.selectedMediaId, media]
+      form.selectedMediaIds
+        .map((id) => media.find((m) => m.id === id))
+        .filter(Boolean) as MediaFile[],
+    [form.selectedMediaIds, media]
   )
+  const selectedMedia: MediaFile | null = selectedMediaList[0] ?? null
 
   const captionLimit = getEffectiveLimit(form.platforms)
   const captionLength = form.caption.length
@@ -161,7 +162,7 @@ export default function ComposerPage() {
         caption: form.caption || null,
         hashtags: form.hashtags,
         platforms: form.platforms,
-        media_ids: form.selectedMediaId ? [form.selectedMediaId] : [],
+        media_ids: form.selectedMediaIds,
         status: submitStatus,
         ...(submitStatus === 'published' ? { publish_now: true } : {}),
         ...(form.scheduledAt ? { scheduled_at: form.scheduledAt } : {}),
@@ -206,7 +207,7 @@ export default function ComposerPage() {
   const canSubmit =
     !isSaving &&
     form.platforms.length > 0 &&
-    (form.caption.trim().length > 0 || form.hashtags.length > 0 || !!form.selectedMediaId) &&
+    (form.caption.trim().length > 0 || form.hashtags.length > 0 || form.selectedMediaIds.length > 0) &&
     !captionOverLimit
 
   // ---------------------------------------------------------------------------
@@ -242,7 +243,7 @@ export default function ComposerPage() {
           <div className="flex flex-col lg:flex-row gap-6">
 
             {/* ----------------------------------------------------------------
-                Left column Ã¢ÂÂ composer form (60%)
+                Left column — composer form (60%)
             ---------------------------------------------------------------- */}
             <div className="flex-1 lg:max-w-[60%] space-y-5">
 
@@ -267,12 +268,12 @@ export default function ComposerPage() {
                 {mediaLoading ? (
                   <div className="flex items-center gap-2 py-6 justify-center text-gray-500">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Loading media libraryÃ¢ÂÂ¦</span>
+                    <span className="text-sm">Loading media library…</span>
                   </div>
                 ) : (
                   <MediaSelector
-                    selectedMediaId={form.selectedMediaId}
-                    onSelect={(id) => patch('selectedMediaId', id)}
+                    selectedMediaIds={form.selectedMediaIds}
+                    onSelect={(ids) => patch('selectedMediaIds', ids)}
                     media={media as MediaFile[]}
                   />
                 )}
@@ -303,7 +304,7 @@ export default function ComposerPage() {
                   value={form.caption}
                   onChange={(e) => patch('caption', e.target.value)}
                   rows={5}
-                  placeholder="Write your caption here, or use the AI generator belowÃ¢ÂÂ¦"
+                  placeholder="Write your caption here, or use the AI generator below…"
                   className={[
                     'w-full resize-none rounded-lg border bg-gray-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none transition-colors',
                     captionOverLimit ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-indigo-500',
@@ -387,7 +388,7 @@ export default function ComposerPage() {
                     !canSubmit
                       ? 'cursor-not-allowed bg-gray-700 text-gray-500'
                       : 'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700 shadow-lg shadow-indigo-900/30',
-                  ].join(' ')}
+          ].join(' ')}
                 >
                   {isSaving && form.status !== 'draft' ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -406,14 +407,14 @@ export default function ComposerPage() {
                       ? 'Select at least one platform to continue.'
                       : captionOverLimit
                       ? 'Shorten your caption to match platform limits.'
-                      : 'Add a caption, hashtag, or select an image before publishing.'}
+                      : 'Add a caption, hashtag, or select media before publishing.'}
                   </p>
                 </div>
               )}
             </div>
 
             {/* ----------------------------------------------------------------
-                Right column Ã¢ÂÂ live preview (40%)
+                Right column — live preview (40%)
             ---------------------------------------------------------------- */}
             <div className="lg:w-[40%] lg:max-w-[40%]">
               <div className="lg:sticky lg:top-6">
@@ -422,7 +423,7 @@ export default function ComposerPage() {
                   <PostPreview
                     caption={form.caption}
                     hashtags={form.hashtags}
-                    selectedMedia={selectedMedia}
+                    selectedMedia={selectedMediaList}
                     platforms={form.platforms.length > 0 ? form.platforms : ['instagram']}
                   />
                 </div>
