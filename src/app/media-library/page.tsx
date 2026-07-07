@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { SidebarNav } from '@/components/ui/SidebarNav';
 import { MediaLibraryGrid } from '@/components/media/MediaLibraryGrid';
 
 // ---------------------------------------------------------------------------
@@ -28,30 +27,25 @@ export default async function MediaLibraryPage() {
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
+  // Sidebar is rendered once, site-wide, by the root layout.
   return (
-    <div className="flex min-h-screen bg-gray-950">
-      {/* Sidebar navigation */}
-      <SidebarNav />
-
-      {/* Main content area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Page header */}
-        <header className="flex items-center gap-4 px-6 h-16 border-b border-gray-800 bg-gray-950 shrink-0">
-          <div>
-            <h1 className="text-lg font-semibold text-white leading-tight">
-              Media Library
-            </h1>
-            <p className="text-xs text-gray-500 leading-tight mt-0.5">
-              Upload and manage your content
-            </p>
-          </div>
-        </header>
-
-        {/* Grid content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6">
-          <MediaLibraryGrid userId={user.id} />
+    <div className="flex flex-col min-w-0 min-h-screen bg-gray-950">
+      {/* Page header */}
+      <header className="flex items-center gap-4 px-6 h-16 border-b border-gray-800 bg-gray-950 shrink-0">
+        <div>
+          <h1 className="text-lg font-semibold text-white leading-tight">
+            Media Library
+          </h1>
+          <p className="text-xs text-gray-500 leading-tight mt-0.5">
+            Upload and manage your content
+          </p>
         </div>
-      </main>
+      </header>
+
+      {/* Grid content */}
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <MediaLibraryGrid userId={user.id} />
+      </div>
     </div>
   );
 }
