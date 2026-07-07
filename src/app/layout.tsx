@@ -33,13 +33,19 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-full bg-gray-950 text-white">
-        <div className="flex h-full">
+      <body className="h-full bg-gray-950 text-white overflow-x-hidden">
+        {/*
+          Mobile: stack vertically (top bar above content, full width, no
+          reserved sidebar column). Desktop (lg+): row layout, sidebar on
+          the left at its fixed width, content filling the rest — this
+          matches the original desktop behavior exactly.
+        */}
+        <div className="flex flex-col lg:flex-row h-full w-full overflow-x-hidden">
           {/* Sidebar */}
           <SidebarNav />
 
           {/* Main content area */}
-          <main className="flex-1 overflow-auto min-h-screen">
+          <main className="flex-1 w-full overflow-auto min-h-screen">
             {children}
           </main>
         </div>
