@@ -154,7 +154,7 @@ export default function SidebarNav() {
   return (
     <>
       {/* Mobile top bar (below lg) */}
-      <div className="lg:hidden flex items-center justify-between gap-3 px-4 h-14 border-b border-gray-800 bg-gray-900 sticky top-0 z-30">
+      <div className="lg:hidden w-full flex items-center justify-between gap-3 px-4 h-14 border-b border-gray-800 bg-gray-900 sticky top-0 z-30">
         <div className="flex items-center gap-2.5">
           <Logo />
           <span className="text-sm font-bold text-[#C9A84C] tracking-widest">CNB CUT</span>
