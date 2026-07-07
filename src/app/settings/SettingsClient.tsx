@@ -3,6 +3,8 @@
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import { CheckCircle, XCircle, Loader2, Share2 } from 'lucide-react';
+import { LogoUploadZone } from '@/components/settings/LogoUploadZone';
+import { broadcastLogoUpdated } from '@/hooks/useShopLogo';
 
 interface PlatformInfo {
   username: string | null;
@@ -11,6 +13,7 @@ interface PlatformInfo {
 
 interface Props {
   connectedPlatforms: Record<string, PlatformInfo>;
+  initialLogoUrl: string | null;
 }
 
 const PLATFORMS = [
@@ -52,13 +55,31 @@ const PLATFORMS = [
   },
 ];
 
-function SettingsContent({ connectedPlatforms }: Props) {
+function SettingsContent({ connectedPlatforms, initialLogoUrl }: Props) {
   const searchParams = useSearchParams();
   const [connected, setConnected] = useState(connectedPlatforms);
   const [loading, setLoading] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl);
 
-  useEffect(() => {
+  function handleLogoChanged(newLogoUrl: string | null) {
+    setLogoUrl(newLogoUrl);
+    broadcastLogoUpdated();
+    setToast({
+      type: 'success',
+      message: newLogoUrl ? 'Shop logo updated.' : 'Shop logo removed.',
+    });
+  }
+
+  // React to the OAuth redirect's success/error query params by adjusting
+  // state during render (per React's guidance) instead of inside an effect,
+  // since this only needs to run once per navigation, not resync on every
+  // re-render of an external system.
+  const searchParamsString = searchParams.toString();
+  const [prevSearchParamsString, setPrevSearchParamsString] = useState(searchParamsString);
+  if (prevSearchParamsString !== searchParamsString) {
+    setPrevSearchParamsString(searchParamsString);
+
     const success = searchParams.get('success');
     const error = searchParams.get('error');
 
@@ -91,7 +112,7 @@ function SettingsContent({ connectedPlatforms }: Props) {
       setToast({ type: 'error', message: detail ? `${baseMessage} (${decodeURIComponent(detail)})` : baseMessage });
       window.history.replaceState({}, '', '/settings');
     }
-  }, [searchParams]);
+  }
 
   useEffect(() => {
     if (toast) {
@@ -135,6 +156,10 @@ function SettingsContent({ connectedPlatforms }: Props) {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-white mb-1">Settings</h1>
         <p className="text-sm text-gray-400 mb-8">Connect your social accounts to start posting.</p>
+
+        <div className="mb-8">
+          <LogoUploadZone logoUrl={logoUrl} onChanged={handleLogoChanged} />
+        </div>
 
         <div className="space-y-4">
           {PLATFORMS.map((platform) => {

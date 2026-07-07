@@ -24,5 +24,17 @@ export default async function SettingsPage() {
     }
   }
 
-  return <SettingsClient connectedPlatforms={connectedPlatforms} />;
+  // Load the shop's current logo (if any) for the Shop Logo section
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('logo_url')
+    .eq('user_id', user.id)
+    .single();
+
+  return (
+    <SettingsClient
+      connectedPlatforms={connectedPlatforms}
+      initialLogoUrl={profile?.logo_url ?? null}
+    />
+  );
 }
