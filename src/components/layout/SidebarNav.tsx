@@ -153,8 +153,8 @@ export default function SidebarNav() {
 
   return (
     <>
-      {/* Mobile top bar (below lg) */}
-      <div className="lg:hidden w-full flex items-center justify-between gap-3 px-4 h-14 border-b border-gray-800 bg-gray-900 sticky top-0 z-30">
+      {/* Top bar — present on every screen size now, not just mobile */}
+      <div className="w-full flex items-center justify-between gap-3 px-4 h-14 border-b border-gray-800 bg-gray-900 sticky top-0 z-30">
         <div className="flex items-center gap-2.5">
           <Logo />
           <span className="text-sm font-bold text-[#C9A84C] tracking-widest">CNB CUT</span>
@@ -170,17 +170,17 @@ export default function SidebarNav() {
         </button>
       </div>
 
-      {/* Mobile drawer + backdrop */}
+      {/* Drawer + backdrop — same overlay pattern at every screen size */}
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/60"
+          className="fixed inset-0 z-40 bg-black/60"
           onClick={() => setMobileOpen(false)}
           aria-hidden="true"
         />
       )}
       <aside
         className={[
-          'lg:hidden fixed top-0 left-0 z-50 h-screen w-72 max-w-[80%] flex flex-col bg-gray-900 border-r border-gray-800',
+          'fixed top-0 left-0 z-50 h-screen w-72 max-w-[80%] flex flex-col bg-gray-900 border-r border-gray-800',
           'transition-transform duration-200 ease-out',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         ].join(' ')}
@@ -205,21 +205,6 @@ export default function SidebarNav() {
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-        </nav>
-        <UserFooter user={user} />
-      </aside>
-
-      {/* Desktop sidebar (lg and up) */}
-      <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col h-screen sticky top-0 bg-gray-900 border-r border-gray-800">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-800">
-          <Logo />
-          <div>
-            <span className="text-base font-bold text-[#C9A84C] tracking-widest leading-none">CNB CUT</span>
-            <p className="text-[10px] text-gray-500 mt-0.5 tracking-wider uppercase">Barber Shop</p>
-          </div>
-        </div>
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <NavLinks pathname={pathname} />
         </nav>
         <UserFooter user={user} />
       </aside>
