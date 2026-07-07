@@ -37,6 +37,8 @@ export interface Profile {
   avatar_url: string | null;
   business_name: string | null;
   website: string | null;
+  /** Public URL of the uploaded shop logo shown in the sidebar, or null if none uploaded. */
+  logo_url: string | null;
   created_at: string;
   updated_at: string;
 }
