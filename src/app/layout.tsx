@@ -35,13 +35,13 @@ export default function RootLayout({
     >
       <body className="h-full bg-gray-950 text-white overflow-x-hidden">
         {/*
-          Mobile: stack vertically (top bar above content, full width, no
-          reserved sidebar column). Desktop (lg+): row layout, sidebar on
-          the left at its fixed width, content filling the rest — this
-          matches the original desktop behavior exactly.
+          Same layout at every screen size now: top bar above content, full
+          width, no reserved sidebar column. The sidebar itself is an
+          overlay drawer (see SidebarNav) opened via the hamburger button,
+          not a permanently docked column — on mobile AND desktop.
         */}
-        <div className="flex flex-col lg:flex-row h-full w-full overflow-x-hidden">
-          {/* Sidebar */}
+        <div className="flex flex-col h-full w-full overflow-x-hidden">
+          {/* Sidebar (top bar + overlay drawer) */}
           <SidebarNav />
 
           {/* Main content area */}
