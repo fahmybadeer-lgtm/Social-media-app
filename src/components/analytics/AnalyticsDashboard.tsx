@@ -4,6 +4,12 @@ import { useMemo } from 'react'
 import { Loader2, FileText, Clock, CheckCircle2, AlertTriangle, Info } from 'lucide-react'
 import { usePosts, type Platform, type PostStatus } from '@/hooks/usePosts'
 
+// The `posts.status` column in the database can also hold `'processing'`
+// (set outside the normal create-post flow) even though it's not part of the
+// app's PostStatus type. Handle it explicitly here so those posts aren't
+// silently dropped from the status cards.
+type DisplayPostStatus = PostStatus | 'processing'
+
 // ---------------------------------------------------------------------------
 // Static display config
 // ---------------------------------------------------------------------------
@@ -16,11 +22,12 @@ const PLATFORM_LABEL: Record<Platform, string> = {
 }
 
 const STATUS_CARD_META: Record<
-  PostStatus,
+  DisplayPostStatus,
   { label: string; icon: React.ReactNode; color: string }
 > = {
   draft: { label: 'Drafts', icon: <FileText className="w-4 h-4" />, color: 'text-gray-300' },
   scheduled: { label: 'Scheduled', icon: <Clock className="w-4 h-4" />, color: 'text-sky-300' },
+  processing: { label: 'Processing', icon: <Loader2 className="w-4 h-4 animate-spin" />, color: 'text-amber-300' },
   published: { label: 'Published', icon: <CheckCircle2 className="w-4 h-4" />, color: 'text-emerald-300' },
   failed: { label: 'Failed', icon: <AlertTriangle className="w-4 h-4" />, color: 'text-red-400' },
 }
@@ -64,9 +71,10 @@ export default function AnalyticsDashboard() {
   const { posts, loading, error } = usePosts()
 
   const stats = useMemo(() => {
-    const byPostStatus: Record<PostStatus, number> = {
+    const byPostStatus: Record<DisplayPostStatus, number> = {
       draft: 0,
       scheduled: 0,
+      processing: 0,
       published: 0,
       failed: 0,
     }
@@ -82,7 +90,8 @@ export default function AnalyticsDashboard() {
     let queueFailed = 0
 
     for (const post of posts) {
-      byPostStatus[post.status] = (byPostStatus[post.status] ?? 0) + 1
+      const displayStatus = post.status as DisplayPostStatus
+      byPostStatus[displayStatus] = (byPostStatus[displayStatus] ?? 0) + 1
 
       for (const item of post.scheduled_queue) {
         const bucket = byPlatform[item.platform]
@@ -153,8 +162,8 @@ export default function AnalyticsDashboard() {
       {/* Status cards */}
       <section>
         <h2 className="text-sm font-semibold text-white mb-3">Posts by status</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {(Object.keys(STATUS_CARD_META) as PostStatus[]).map((status) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {(Object.keys(STATUS_CARD_META) as DisplayPostStatus[]).map((status) => (
             <StatCard
               key={status}
               label={STATUS_CARD_META[status].label}
@@ -201,7 +210,7 @@ export default function AnalyticsDashboard() {
         <h2 className="text-sm font-semibold text-white mb-3">Recent activity</h2>
         <div className="space-y-2">
           {stats.recent.map((post) => {
-            const meta = STATUS_CARD_META[post.status]
+            const meta = STATUS_CARD_META[post.status as DisplayPostStatus]
             return (
               <div
                 key={post.id}
