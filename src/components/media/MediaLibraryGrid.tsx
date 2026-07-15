@@ -14,6 +14,7 @@ import { UploadZone, type UploadProgressItem } from '@/components/media/UploadZo
 import { MediaCard } from '@/components/media/MediaCard';
 import { MediaPreviewModal } from '@/components/media/MediaPreviewModal';
 import { useMediaLibrary, type MediaItem } from '@/hooks/useMediaLibrary';
+import { createClient } from '@/lib/supabase/client';
 import type { MediaFile } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -237,52 +238,90 @@ export function MediaLibraryGrid({ userId: _userId }: MediaLibraryGridProps) {
       queuedFiles.map((f) => ({ fileName: f.name, progress: 0, status: 'pending' }))
     );
 
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      setUploadProgress((prev) =>
+        prev.map((p) => ({ ...p, status: 'error', error: 'Not signed in' }))
+      );
+      setIsUploading(false);
+      return;
+    }
+
     for (const file of queuedFiles) {
       // Mark as uploading
       setUploadProgress((prev) =>
         prev.map((p) =>
-          p.fileName === file.name ? { ...p, status: 'uploading', progress: 0 } : p
+          p.fileName === file.name ? { ...p, status: 'uploading', progress: 10 } : p
         )
       );
 
       try {
-        const formData = new FormData();
-        formData.append('file', file);
+        const fileType = file.type.startsWith('video/')
+          ? 'video'
+          : file.type.startsWith('image/')
+          ? 'image'
+          : null;
 
-        // Use XHR so we can track upload progress
-        await new Promise<void>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
+        if (!fileType) {
+          throw new Error(`Unsupported file type "${file.type}". Only images and videos are allowed.`);
+        }
 
-          xhr.upload.addEventListener('progress', (e) => {
-            if (e.lengthComputable) {
-              const pct = Math.round((e.loaded / e.total) * 100);
-              setUploadProgress((prev) =>
-                prev.map((p) =>
-                  p.fileName === file.name ? { ...p, progress: pct } : p
-                )
-              );
-            }
+        const parts = file.name.split('.');
+        const extension = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+        const uniqueId = crypto.randomUUID();
+        const storagePath = `${user.id}/${uniqueId}${extension ? '.' + extension : ''}`;
+
+        // Upload straight to Supabase Storage from the browser. This bypasses
+        // the Vercel serverless function entirely (which caps request bodies
+        // at ~4.5MB), so large video files no longer fail with a generic
+        // "Upload failed" the moment they exceed that limit.
+        const { error: uploadError } = await supabase.storage
+          .from('media-library')
+          .upload(storagePath, file, {
+            contentType: file.type,
+            upsert: false,
           });
 
-          xhr.addEventListener('load', () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              resolve();
-            } else {
-              let errMsg = 'Upload failed';
-              try {
-                const body = JSON.parse(xhr.responseText) as { error?: string };
-                if (body.error) errMsg = body.error;
-              } catch { /* ignore */ }
-              reject(new Error(errMsg));
-            }
-          });
+        if (uploadError) {
+          throw new Error(`Storage upload failed: ${uploadError.message}`);
+        }
 
-          xhr.addEventListener('error', () => reject(new Error('Network error')));
-          xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
+        setUploadProgress((prev) =>
+          prev.map((p) => (p.fileName === file.name ? { ...p, progress: 75 } : p))
+        );
 
-          xhr.open('POST', '/api/media/upload');
-          xhr.send(formData);
+        const { data: publicUrlData } = supabase.storage
+          .from('media-library')
+          .getPublicUrl(storagePath);
+
+        const now = new Date().toISOString();
+        const { error: insertError } = await supabase.from('media_library').insert({
+          user_id: user.id,
+          file_name: `${uniqueId}${extension ? '.' + extension : ''}`,
+          original_name: file.name,
+          file_path: storagePath,
+          file_url: publicUrlData.publicUrl,
+          file_type: fileType,
+          mime_type: file.type,
+          file_size: file.size,
+          storage_bucket: 'media-library',
+          tags: [],
+          is_processed: false,
+          metadata: {},
+          created_at: now,
+          updated_at: now,
         });
+
+        if (insertError) {
+          // Clean up the uploaded object so it doesn't become an orphaned file.
+          await supabase.storage.from('media-library').remove([storagePath]);
+          throw new Error(`Database insert failed: ${insertError.message}`);
+        }
 
         // Mark done
         setUploadProgress((prev) =>
