@@ -69,9 +69,9 @@ export default function AICaptionGenerator({
     try {
       const body: Record<string, unknown> = { platforms }
 
-      if (selectedMedia?.file_url && selectedMedia.file_type === 'image') {
+      if (selectedMedia?.file_url) {
         body.mediaUrl = selectedMedia.file_url
-        body.mediaType = 'image'
+        body.mediaType = selectedMedia.file_type
       }
 
       if (extraContext.trim()) body.rawConcept = extraContext.trim()
@@ -136,7 +136,7 @@ export default function AICaptionGenerator({
         <div>
           <h3 className="text-sm font-semibold text-white">AI Caption Generator</h3>
           <p className="text-xs text-gray-500">
-            {selectedMedia ? 'Reads your image and writes a caption' : 'Upload an image to auto-generate a caption'}
+            {selectedMedia ? 'Reads your photo/video and writes a caption' : 'Select media to auto-generate a caption'}
           </p>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function AICaptionGenerator({
       {/* Status when no media and idle */}
       {!selectedMedia && state === 'idle' && (
         <div className="rounded-lg border border-dashed border-gray-700 bg-gray-900/50 px-3 py-4 text-center">
-          <p className="text-xs text-gray-500">Select an image above and a caption will be generated automatically.</p>
+          <p className="text-xs text-gray-500">Select a photo or video above and a caption will be generated automatically.</p>
           <button
             type="button"
             onClick={() => setShowContext(!showContext)}
@@ -159,7 +159,7 @@ export default function AICaptionGenerator({
       {(showContext || (!selectedMedia && extraContext.length > 0)) && (
         <div className="space-y-1.5">
           <label htmlFor="extra-context" className="text-xs font-medium text-gray-400">
-            Concept or context <span className="text-gray-600">(optional if image is selected)</span>
+            Concept or context <span className="text-gray-600">(optional if media is selected)</span>
           </label>
           <textarea
             id="extra-context"
@@ -198,7 +198,7 @@ export default function AICaptionGenerator({
       {state === 'loading' && selectedMedia && (
         <div className="flex items-center gap-2.5 rounded-lg border border-indigo-500/20 bg-indigo-900/10 px-3 py-3">
           <Loader2 className="w-4 h-4 text-indigo-400 animate-spin flex-shrink-0" />
-          <p className="text-xs text-indigo-300">Analyzing your image and writing a caption…</p>
+          <p className="text-xs text-indigo-300">Writing your caption…</p>
         </div>
       )}
 
