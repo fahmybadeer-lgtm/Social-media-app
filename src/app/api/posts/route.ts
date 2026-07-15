@@ -65,6 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const queueItems = platforms.map((platform: string) => ({
         post_id: post.id,
+        user_id: user.id,
         platform,
         status: publish_now ? 'processing' : 'scheduled',
         scheduled_at: scheduled_at ?? null,
@@ -176,7 +177,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 
   if (platforms.includes('tiktok')) {
-        
+
         if (!ttToken) {
                 await supabase.from('scheduled_queue')
                   .update({ status: 'failed', error_message: 'TikTok not connected. Go to Settings to connect TikTok.' })
