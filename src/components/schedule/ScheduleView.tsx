@@ -132,7 +132,7 @@ export default function ScheduleView() {
 
     const upcoming = rows
       .filter((r) => r.status === 'scheduled' || r.status === 'processing')
-      .sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at))
+      .sort((a, b) => (a.scheduled_at ?? '').localeCompare(b.scheduled_at ?? ''))
 
     const groups = new Map<string, QueueRow[]>()
     for (const row of upcoming) {
@@ -143,12 +143,12 @@ export default function ScheduleView() {
 
     const publishedRows = rows
       .filter((r) => r.status === 'published')
-      .sort((a, b) => (b.published_at ?? b.scheduled_at).localeCompare(a.published_at ?? a.scheduled_at))
+      .sort((a, b) => (b.published_at ?? b.scheduled_at ?? '').localeCompare(a.published_at ?? a.scheduled_at ?? ''))
       .slice(0, 20)
 
     const failedRows = rows
       .filter((r) => r.status === 'failed')
-      .sort((a, b) => b.scheduled_at.localeCompare(a.scheduled_at))
+      .sort((a, b) => (b.scheduled_at ?? '').localeCompare(a.scheduled_at ?? ''))
 
     return { upcomingByDate: groups, published: publishedRows, failed: failedRows }
   }, [posts])
